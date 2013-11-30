@@ -1,6 +1,7 @@
 describe('cookies', function() {
-    var scope, ctrl, usecaseFactory, rest;
+    var scope, ctrl, usecaseFactory, rest, service;
     var context = {};
+    var config = {};
 
     beforeEach(module('cookies'));
     beforeEach(module('angular.usecase.adapter'));
@@ -13,14 +14,18 @@ describe('cookies', function() {
         rest = restServiceHandler;
     }));
 
-    describe('CookieController', function() {
-        beforeEach(inject(function($controller) {
-            ctrl = $controller(CookieController, {$scope: scope});
+    describe('HasCookie', function() {
+        var onSuccess = function() {};
+        var onNotFound = function() {};
+
+        beforeEach(inject(function() {
+            service = HasCookieFactory(usecaseFactory, rest, config);
         }));
 
-        describe('on init', function() {
+        describe('when called', function() {
             beforeEach(function() {
-                scope.init();
+                config.baseUri = 'baseUri/';
+                service(scope, onSuccess, onNotFound);
             });
 
             it('context is created with scope', function() {
@@ -32,27 +37,35 @@ describe('cookies', function() {
             });
 
             it('will send a request to cookie resource', function() {
-                expect(context.params.uri).toEqual('api/cookie')
+                expect(context.params.url).toEqual('baseUri/api/cookie')
+            });
+
+            it('will send requests with cookies', function() {
+                expect(context.params.withCredentials).toEqual(true);
             });
 
             it('passes the context to the rest service', function() {
                 expect(rest.calls[0].args[0]).toEqual(context);
             });
 
-            describe('on success', function() {
-                beforeEach(function() {
-                    context.success();
-                });
+            it('context contains a success handler', function() {
+                expect(context.success).toEqual(onSuccess);
+            });
 
-                it('then granted is true', function() {
-                    expect(scope.granted).toBeTruthy();
-                });
+            it('context contains a not found handler', function() {
+                expect(context.notFound).toEqual(onNotFound);
             });
         });
+    });
 
-        describe('on submit', function() {
+    describe('CreateCookie', function() {
+        beforeEach(function() {
+            service = CreateCookieFactory(usecaseFactory, rest, {});
+        });
+
+        describe('when called', function() {
             beforeEach(function() {
-                scope.submit();
+                service(scope);
             });
 
             it('context is created with scope', function() {
@@ -64,21 +77,57 @@ describe('cookies', function() {
             });
 
             it('will send a request to cookie resource', function() {
-                expect(context.params.uri).toEqual('api/cookie')
+                expect(context.params.url).toEqual('api/cookie')
             });
 
             it('will pass context to rest service', function() {
                 expect(rest.calls[0].args[0]).toEqual(context);
             });
+        });
+    });
 
-            describe('on success', function() {
+    describe('CookieController', function() {
+        var capturedScope, capturedSuccess;
+        var hasCookie = function(scope, success) {
+            capturedScope = scope;
+            capturedSuccess = success;
+        };
+        var createCookie = function(scope, success) {
+            capturedScope = scope;
+            capturedSuccess = success;
+        };
+
+        beforeEach(inject(function($controller) {
+            ctrl = $controller(CookieController, {$scope: scope, hasCookie: hasCookie, createCookie: createCookie});
+        }));
+
+        describe('on init', function() {
+            beforeEach(function() {
+                scope.init();
+            });
+
+            it('has cookies service receives scope', function() {
+                expect(capturedScope).toEqual(scope);
+            });
+
+            describe('when has cookie service receives success handler', function() {
                 beforeEach(function() {
-                    context.success();
+                    capturedSuccess();
                 });
 
-                it('', function() {
-                    expect(true).toBeTruthy();
+                it('has cookies service receives success handler', function() {
+                    expect(scope.granted).toEqual(true);
                 });
+            });
+        });
+
+        describe('on submit', function() {
+            beforeEach(function() {
+                scope.submit();
+            });
+
+            it('create cookie service receives scope', function() {
+                expect(capturedScope).toEqual(scope);
             });
         });
     });
