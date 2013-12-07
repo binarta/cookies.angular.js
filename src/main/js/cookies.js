@@ -4,17 +4,18 @@ angular.module('cookies', ['notifications', 'config'])
             .when('/:locale/accept-external-cookies', {templateUrl: 'partials/accept-external-cookies.html'})
     }])
     .controller('CookieController', ['$scope', '$routeParams', 'hasCookie', 'createCookie', CookieController])
-    .controller('CookieRedirectController', ['$scope', 'config', '$location', CookieRedirectController])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('createCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', CreateCookieFactory])
-    .run(function(topicRegistry, hasCookie, $location) {
+    .factory('onCookieNotFoundPresenter', ['config', OnCookieNotFoundPresenterFactory])
+    .directive('cookiePermissionGranted', CookiePermissionGrantedDirectiveFactory)
+    .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
         topicRegistry.subscribe('i18n.locale', function() {
             topicRegistry.subscribe('app.start', function() {
                 var onNotFound = function() {
                     $location.search('redirectUrl', window.location.href);
                     $location.path(localStorage.locale + '/accept-external-cookies');
                 };
-                hasCookie({}, null, onNotFound);
+                hasCookie({}, null, onCookieNotFoundPresenter);
             });
         });
     });
@@ -55,14 +56,27 @@ function CookieController($scope, $routeParams, hasCookie, createCookie) {
 
     $scope.submit = function() {
         var onSuccess = function() {
-            window.location = $routeParams.redirectUrl;
+            window.location = $routeParams.redirectUrl + '?permissionGranted=true';
         };
         createCookie($scope, onSuccess);
     };
 }
 
-function CookieRedirectController($scope, config, $location) {
-    $scope.redirect = function() {
-        window.location = config.baseUri + 'cookie?redirectUrl=' + encodeURIComponent($location.search().redirectUrl);
+function OnCookieNotFoundPresenterFactory(config) {
+    return function() {
+        window.location = config.baseUri + 'cookie?redirectUrl=' + encodeURIComponent(window.location);
+    }
+}
+
+function CookiePermissionGrantedDirectiveFactory($location) {
+    return {
+        restrict: 'E',
+        scope: {},
+        transclude: true,
+        template: '<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'"</span></div>',
+        link: function(scope) {
+            var granted = $location.$$search.permissionGranted;
+            if (granted == 'true') scope.granted = true;
+        }
     }
 }
