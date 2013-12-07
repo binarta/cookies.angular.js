@@ -1,6 +1,6 @@
 {
     "name": "binarta.cookies.angular",
-    "version": "0.0.0",
+    "version": "0.0.4",
     "main": "./src/main/js/cookies.js",
     "dependencies": {
         "angular": "1.0.7"
