@@ -157,12 +157,12 @@ describe('cookies', function() {
         });
 
         it('template is inlined', function() {
-            expect(directive.template).toEqual('<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'"</span></div>')
+            expect(directive.template).toEqual('<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'"</div>')
         });
 
         describe('on link', function() {
             beforeEach(function() {
-
+                scope.$on = function(event, callback) {}
             });
 
             it('when permission is granted', function() {
@@ -179,7 +179,5 @@ describe('cookies', function() {
                 });
             });
         });
-
-
     });
 });
