@@ -73,7 +73,7 @@ function CookiePermissionGrantedDirectiveFactory($location) {
         restrict: 'E',
         scope: {},
         transclude: true,
-        template: '<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'"</div>',
+        template: '<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'" /></div>',
         link: function(scope) {
             function init() {
                 var granted = $location.$$search.permissionGranted;
