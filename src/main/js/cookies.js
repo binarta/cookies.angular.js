@@ -1,4 +1,4 @@
-angular.module('cookies', ['notifications', 'config'])
+angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .config(['$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/:locale/accept-external-cookies', {templateUrl: 'partials/accept-external-cookies.html'})
