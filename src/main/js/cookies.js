@@ -26,7 +26,7 @@ function HasCookieFactory(usecaseAdapterFactory, restServiceHandler, config) {
 
 function OnCookieNotFoundPresenterFactory(config) {
     return function() {
-        window.location = (config.baseUri || '') + 'cookie?redirectUrl=' + encodeURIComponent(window.location);
+        window.location = (config.baseUri || '') + 'api/cookie?redirectUrl=' + encodeURIComponent(window.location);
     }
 }
 
