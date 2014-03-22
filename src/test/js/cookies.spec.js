@@ -64,11 +64,11 @@ describe('cookies', function() {
         var directive;
         var scope;
 
-        beforeEach(function() {
-            directive = CookiePermissionGrantedDirectiveFactory(location);
+        beforeEach(inject(function ($rootScope) {
+            directive = CookiePermissionGrantedDirectiveFactory(location, $rootScope);
             scope = {};
             location.$$search = {};
-        });
+        }));
 
         it('restrict to elements', function() {
             expect(directive.restrict).toEqual('E')
@@ -82,9 +82,15 @@ describe('cookies', function() {
             expect(directive.transclude).toBeTruthy();
         });
 
-        it('template is inlined', function() {
-            expect(directive.template).toEqual('<div ng-show="granted"><ng-include src="\'app/partials/cookies/notification.html\'" /></div>')
+        it('template url', function() {
+            expect(directive.templateUrl()).toEqual('app/partials/cookies/notification.html');
         });
+
+        it('template url can be overridden by rootScope', inject(function ($rootScope) {
+            $rootScope.cookieNoticeTemplateUrl = 'overridden-template.html';
+
+            expect(directive.templateUrl()).toEqual('overridden-template.html');
+        }));
 
         describe('on link', function() {
             beforeEach(function() {
