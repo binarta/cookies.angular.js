@@ -61,12 +61,12 @@ describe('cookies', function() {
     });
 
     describe('cookie permission granted directive', function() {
-        var directive;
-        var scope;
+        var directive, scope, registry;
 
-        beforeEach(inject(function ($rootScope) {
-            directive = CookiePermissionGrantedDirectiveFactory(location, $rootScope);
-            scope = {};
+        beforeEach(inject(function ($rootScope, topicRegistry, topicRegistryMock) {
+            registry = topicRegistryMock;
+            directive = CookiePermissionGrantedDirectiveFactory(location, $rootScope, topicRegistry);
+            scope = $rootScope.$new();
             location.$$search = {};
         }));
 
@@ -93,8 +93,43 @@ describe('cookies', function() {
         }));
 
         describe('on link', function() {
-            beforeEach(function() {
-                scope.$on = function(event, callback) {}
+            describe('if localization is supported', function () {
+                beforeEach(function () {
+                    config.supportedLanguages = 'locale';
+                    directive.link(scope);
+                    registry['config.initialized'](config);
+                });
+
+                describe('when i18n locale notification received', function () {
+                    beforeEach(function () {
+                        registry['i18n.locale']('locale');
+                    });
+
+                    it('put locale prefix on scope', function () {
+                        expect(scope.localePrefix).toEqual('locale/');
+                    });
+                });
+
+                describe('when scope is destroyed', function() {
+                    beforeEach(function () {
+                        scope.$destroy();
+                    });
+
+                    it('unsubscribe i18n.locale', function () {
+                        expect(registry['i18n.locale']).toBeUndefined();
+                    });
+                });
+            });
+
+            describe('if localization is not supported', function () {
+                beforeEach(function () {
+                    directive.link(scope);
+                    registry['config.initialized'](config);
+                });
+
+                it('locale is empty', function () {
+                    expect(scope.localePrefix).toBeUndefined();
+                });
             });
 
             it('when permission is granted', function() {
