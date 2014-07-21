@@ -61,11 +61,15 @@ describe('cookies', function() {
     });
 
     describe('cookie permission granted directive', function() {
-        var directive, scope, registry;
+        var directive, scope, registry, route;
 
         beforeEach(inject(function ($rootScope, topicRegistry, topicRegistryMock) {
             registry = topicRegistryMock;
-            directive = CookiePermissionGrantedDirectiveFactory(location, $rootScope, topicRegistry);
+            route = {routes: []};
+            route.routes['/template/cookie-notice'] = {
+                templateUrl: 'cookie-notice.html'
+            };
+            directive = CookiePermissionGrantedDirectiveFactory(location, topicRegistry, route);
             scope = $rootScope.$new();
             location.$$search = {};
         }));
@@ -83,14 +87,8 @@ describe('cookies', function() {
         });
 
         it('template url', function() {
-            expect(directive.templateUrl()).toEqual('app/partials/cookies/notification.html');
+            expect(directive.templateUrl).toEqual('cookie-notice.html');
         });
-
-        it('template url can be overridden by rootScope', inject(function ($rootScope) {
-            $rootScope.cookieNoticeTemplateUrl = 'overridden-template.html';
-
-            expect(directive.templateUrl()).toEqual('overridden-template.html');
-        }));
 
         describe('on link', function() {
             describe('if localization is supported', function () {

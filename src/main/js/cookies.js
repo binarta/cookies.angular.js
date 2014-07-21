@@ -1,7 +1,7 @@
 angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('onCookieNotFoundPresenter', ['config', OnCookieNotFoundPresenterFactory])
-    .directive('cookiePermissionGranted', ['$location', '$rootScope', 'topicRegistry', CookiePermissionGrantedDirectiveFactory])
+    .directive('cookiePermissionGranted', ['$location', 'topicRegistry', '$route', CookiePermissionGrantedDirectiveFactory])
     .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
         topicRegistry.subscribe('i18n.locale', function() {
             topicRegistry.subscribe('app.start', function() {
@@ -30,14 +30,12 @@ function OnCookieNotFoundPresenterFactory(config) {
     }
 }
 
-function CookiePermissionGrantedDirectiveFactory($location, $rootScope, topicRegistry) {
+function CookiePermissionGrantedDirectiveFactory($location, topicRegistry, $route) {
     return {
         restrict: 'E',
         scope: {},
         transclude: true,
-        templateUrl: function () {
-            return $rootScope.cookieNoticeTemplateUrl ? $rootScope.cookieNoticeTemplateUrl : 'app/partials/cookies/notification.html'
-        },
+        templateUrl: $route.routes['/template/cookie-notice'].templateUrl,
         link: function(scope) {
             function init() {
                 var granted = $location.$$search.permissionGranted;
