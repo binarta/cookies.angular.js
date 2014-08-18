@@ -1,7 +1,7 @@
 angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('onCookieNotFoundPresenter', ['config', OnCookieNotFoundPresenterFactory])
-    .directive('cookiePermissionGranted', ['$location', 'topicRegistry', '$route', CookiePermissionGrantedDirectiveFactory])
+    .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', CookiePermissionGrantedDirectiveFactory])
     .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
         topicRegistry.subscribe('i18n.locale', function() {
             topicRegistry.subscribe('app.start', function() {
@@ -30,37 +30,35 @@ function OnCookieNotFoundPresenterFactory(config) {
     }
 }
 
-function CookiePermissionGrantedDirectiveFactory($location, topicRegistry, $route) {
+function CookiePermissionGrantedDirectiveFactory($location, ngRegisterTopicHandler, config, binTemplate) {
     return {
         restrict: 'E',
-        scope: {},
-        transclude: true,
-        templateUrl: $route.routes['/template/cookie-notice'].templateUrl,
+        scope: true,
+        template: '<div ng-include="templateUrl"></div>',
         link: function(scope) {
             function init() {
-                var granted = $location.$$search.permissionGranted;
-                scope.granted = granted == 'true';
+                if($location.$$search.permissionGranted == 'true') {
+                    binTemplate.setTemplateUrl({
+                        scope: scope,
+                        module: 'cookies',
+                        name: 'cookie-notice.html'
+                    });
+                } else {
+                    delete scope.templateUrl;
+                }
             }
-            scope.$on('$routeChangeSuccess', function (evt, route) {
+            scope.$on('$routeChangeSuccess', function () {
                 init();
             });
             init();
 
-            var putLocalePrefixOnScope = function (locale) {
-                scope.localePrefix = locale + '/';
-            };
+            if(config.supportedLanguages) subscribeI18nLocale();
 
             function subscribeI18nLocale () {
-                topicRegistry.subscribe('i18n.locale', putLocalePrefixOnScope);
+                ngRegisterTopicHandler(scope, 'i18n.locale', function (locale) {
+                    scope.localePrefix = locale + '/';
+                });
             }
-
-            topicRegistry.subscribe('config.initialized', function (config) {
-                if(config.supportedLanguages) subscribeI18nLocale();
-            });
-
-            scope.$on('$destroy', function () {
-                topicRegistry.unsubscribe('i18n.locale', putLocalePrefixOnScope);
-            });
         }
     }
 }

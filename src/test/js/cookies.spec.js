@@ -1,19 +1,24 @@
 describe('cookies', function() {
     var scope, ctrl, usecaseFactory, rest, service;
     var context = {};
-    var config = {};
+    var config;
     var location;
 
     beforeEach(module('cookies'));
     beforeEach(module('angular.usecase.adapter'));
     beforeEach(module('rest.client'));
+    angular.module('config', [])
+        .factory('config', function () {
+            return {};
+        });
 
-    beforeEach(inject(function($rootScope, usecaseAdapterFactory, restServiceHandler, $location) {
+    beforeEach(inject(function($rootScope, usecaseAdapterFactory, restServiceHandler, $location, _config_) {
         scope = $rootScope.$new();
         usecaseFactory = usecaseAdapterFactory;
         usecaseFactory.andReturn(context);
         rest = restServiceHandler;
         location = $location;
+        config = _config_;
     }));
 
     describe('HasCookie', function() {
@@ -61,15 +66,17 @@ describe('cookies', function() {
     });
 
     describe('cookie permission granted directive', function() {
-        var directive, scope, registry, route;
+        var directive, scope, topics, registry, templateSpy, templateArgs;
 
-        beforeEach(inject(function ($rootScope, topicRegistry, topicRegistryMock) {
-            registry = topicRegistryMock;
-            route = {routes: []};
-            route.routes['/template/cookie-notice'] = {
-                templateUrl: 'cookie-notice.html'
+        beforeEach(inject(function ($rootScope, ngRegisterTopicHandler, topicRegistryMock) {
+            topics = topicRegistryMock;
+            registry = ngRegisterTopicHandler;
+            templateSpy = {
+                setTemplateUrl: function (args){
+                    templateArgs = args;
+                }
             };
-            directive = CookiePermissionGrantedDirectiveFactory(location, topicRegistry, route);
+            directive = CookiePermissionGrantedDirectiveFactory(location, registry, config, templateSpy);
             scope = $rootScope.$new();
             location.$$search = {};
         }));
@@ -78,16 +85,12 @@ describe('cookies', function() {
             expect(directive.restrict).toEqual('E')
         });
 
-        it('define empty scope', function() {
-            expect(directive.scope).toEqual({});
+        it('define new child scope', function() {
+            expect(directive.scope).toEqual(true);
         });
 
-        it('transclude is enabled', function() {
-            expect(directive.transclude).toBeTruthy();
-        });
-
-        it('template url', function() {
-            expect(directive.templateUrl).toEqual('cookie-notice.html');
+        it('template', function () {
+            expect(directive.template).toEqual('<div ng-include="templateUrl"></div>');
         });
 
         describe('on link', function() {
@@ -95,26 +98,15 @@ describe('cookies', function() {
                 beforeEach(function () {
                     config.supportedLanguages = 'locale';
                     directive.link(scope);
-                    registry['config.initialized'](config);
                 });
 
                 describe('when i18n locale notification received', function () {
                     beforeEach(function () {
-                        registry['i18n.locale']('locale');
+                        topics['i18n.locale']('locale');
                     });
 
                     it('put locale prefix on scope', function () {
                         expect(scope.localePrefix).toEqual('locale/');
-                    });
-                });
-
-                describe('when scope is destroyed', function() {
-                    beforeEach(function () {
-                        scope.$destroy();
-                    });
-
-                    it('unsubscribe i18n.locale', function () {
-                        expect(registry['i18n.locale']).toBeUndefined();
                     });
                 });
             });
@@ -122,7 +114,6 @@ describe('cookies', function() {
             describe('if localization is not supported', function () {
                 beforeEach(function () {
                     directive.link(scope);
-                    registry['config.initialized'](config);
                 });
 
                 it('locale is empty', function () {
@@ -130,17 +121,23 @@ describe('cookies', function() {
                 });
             });
 
-            it('when permission is granted', function() {
+            it('when permission is granted setTemplateUrl is called', function() {
                 location.search('permissionGranted', 'true');
                 directive.link(scope);
-                expect(scope.granted).toBeTruthy();
+
+                expect(templateArgs).toEqual({
+                    scope: scope,
+                    module: 'cookies',
+                    name: 'cookie-notice.html'
+                });
             });
 
             ['false', null].forEach(function(value) {
                 it("when permission is not granted with " + value, function() {
                     location.$$search.permissionGranted = value;
+                    scope.templateUrl = 'defined';
                     directive.link(scope);
-                    expect(scope.granted).toBeFalsy();
+                    expect(scope.templateUrl).toBeUndefined();
                 });
             });
         });
