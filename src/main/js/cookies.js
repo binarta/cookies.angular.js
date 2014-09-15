@@ -2,7 +2,6 @@ angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', CookiePermissionGrantedDirectiveFactory])
     .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
-    .directive('cookiePermissionGranted', ['$location', 'topicRegistry', '$route', CookiePermissionGrantedDirectiveFactory])
     .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
         topicRegistry.subscribe('i18n.locale', function() {
             topicRegistry.subscribe('app.start', function() {
