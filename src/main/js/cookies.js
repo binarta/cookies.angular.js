@@ -1,7 +1,8 @@
 angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
-    .factory('onCookieNotFoundPresenter', ['config', OnCookieNotFoundPresenterFactory])
     .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', CookiePermissionGrantedDirectiveFactory])
+    .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
+    .directive('cookiePermissionGranted', ['$location', 'topicRegistry', '$route', CookiePermissionGrantedDirectiveFactory])
     .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
         topicRegistry.subscribe('i18n.locale', function() {
             topicRegistry.subscribe('app.start', function() {
@@ -24,9 +25,18 @@ function HasCookieFactory(usecaseAdapterFactory, restServiceHandler, config) {
     }
 }
 
-function OnCookieNotFoundPresenterFactory(config) {
+function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $window) {
     return function() {
-        window.location = (config.baseUri || '') + 'api/cookie?redirectUrl=' + encodeURIComponent(window.location);
+        isInitialCookieCheck() ? redirectForCookie() : permissionDenied();
+    };
+    function isInitialCookieCheck() { return sessionStorage.cookieRedirectRequested == undefined }
+    function redirectForCookie() {
+        sessionStorage.cookieRedirectRequested = true;
+        $window.location = (config.baseUri || '') + 'api/cookie?redirectUrl=' + encodeURIComponent($window.location);
+    }
+    function permissionDenied() {
+        $location.search('permissionGranted', 'false');
+        sessionStorage.cookieRedirectRequested = undefined;
     }
 }
 
@@ -36,16 +46,12 @@ function CookiePermissionGrantedDirectiveFactory($location, ngRegisterTopicHandl
         scope: true,
         template: '<div ng-include="templateUrl"></div>',
         link: function(scope) {
+            var names = {'true':'cookie-notice.html', 'false': 'configure-cookies.html'};
+
             function init() {
-                if($location.$$search.permissionGranted == 'true') {
-                    binTemplate.setTemplateUrl({
-                        scope: scope,
-                        module: 'cookies',
-                        name: 'cookie-notice.html'
-                    });
-                } else {
-                    delete scope.templateUrl;
-                }
+                var permissionGranted = $location.$$search.permissionGranted;
+                if (permissionGranted != undefined) binTemplate.setTemplateUrl({scope:scope, module:'cookies', name:names[permissionGranted]});
+                else delete scope.templateUrl;
             }
             scope.$on('$routeChangeSuccess', function () {
                 init();

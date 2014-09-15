@@ -11,6 +11,8 @@ describe('cookies', function() {
         .factory('config', function () {
             return {};
         });
+    beforeEach(module('window.mock'));
+    beforeEach(module('web.storage'));
 
     beforeEach(inject(function($rootScope, usecaseAdapterFactory, restServiceHandler, $location, _config_) {
         scope = $rootScope.$new();
@@ -20,6 +22,49 @@ describe('cookies', function() {
         location = $location;
         config = _config_;
     }));
+
+    describe('OnCookieNotFoundPresenter', function() {
+        var presenter;
+
+        beforeEach(inject(function(onCookieNotFoundPresenter) {
+            presenter = onCookieNotFoundPresenter;
+        }));
+
+        describe('given we return from a cookie redirect', function() {
+            beforeEach(inject(function($window) {
+                $window.location = 'L';
+                presenter();
+            }));
+
+            it('redirect was requested', inject(function(sessionStorage) {
+                expect(sessionStorage.cookieRedirectRequested).toEqual(true);
+            }));
+
+            it('window location was updated', inject(function($window) {
+                expect($window.location).toEqual('api/cookie?redirectUrl=L');
+            }));
+
+            describe('and received another redirect and return again', function() {
+                beforeEach(inject(function($window, $location) {
+                    $window.location = 'L';
+                    $location.search('permissionGranted', 'true');
+                    presenter();
+                }));
+
+                it('permission granted flag was set to false', inject(function($location) {
+                    expect($location.$$search.permissionGranted).toEqual('false');
+                }));
+
+                it('window location was not changed', inject(function($window) {
+                    expect($window.location).toEqual('L');
+                }));
+
+                it('test', inject(function(sessionStorage) {
+                    expect(sessionStorage.cookieRedirectRequested).toBeUndefined();
+                }));
+            });
+        });
+    });
 
     describe('HasCookie', function() {
         var onSuccess = function() {};
@@ -121,18 +166,23 @@ describe('cookies', function() {
                 });
             });
 
-            it('when permission is granted setTemplateUrl is called', function() {
-                location.search('permissionGranted', 'true');
-                directive.link(scope);
+            [
+                {granted:'true', name:'cookie-notice.html'},
+                {granted:'false', name:'configure-cookies.html'}
+            ].forEach(function(args) {
+                it('test', function() {
+                    location.search('permissionGranted', args.granted);
+                    directive.link(scope);
 
-                expect(templateArgs).toEqual({
-                    scope: scope,
-                    module: 'cookies',
-                    name: 'cookie-notice.html'
-                });
+                    expect(templateArgs).toEqual({
+                        scope:scope,
+                        module:'cookies',
+                        name:args.name
+                    })
+                })
             });
 
-            ['false', null].forEach(function(value) {
+            [null].forEach(function(value) {
                 it("when permission is not granted with " + value, function() {
                     location.$$search.permissionGranted = value;
                     scope.templateUrl = 'defined';
@@ -143,3 +193,5 @@ describe('cookies', function() {
         });
     });
 });
+
+angular.module('window.mock', ['cookies']).factory('$window', function() {return {}});
