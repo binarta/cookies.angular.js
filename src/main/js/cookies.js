@@ -3,10 +3,12 @@ angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', CookiePermissionGrantedDirectiveFactory])
     .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
     .run(function(topicRegistry, hasCookie, $location, onCookieNotFoundPresenter) {
-        topicRegistry.subscribe('i18n.locale', function() {
-            topicRegistry.subscribe('app.start', function() {
+        topicRegistry.subscribe('app.start', function() {
+            var callback = function() {
+                topicRegistry.unsubscribe('i18n.locale', callback);
                 hasCookie({}, null, onCookieNotFoundPresenter);
-            });
+            };
+            topicRegistry.subscribe('i18n.locale', callback);
         });
     });
 
@@ -35,7 +37,7 @@ function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $wi
     }
     function permissionDenied() {
         $location.search('permissionGranted', 'false');
-        sessionStorage.cookieRedirectRequested = undefined;
+        delete sessionStorage.cookieRedirectRequested;
     }
 }
 

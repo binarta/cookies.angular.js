@@ -60,7 +60,7 @@ describe('cookies', function() {
                 }));
 
                 it('test', inject(function(sessionStorage) {
-                    expect(sessionStorage.cookieRedirectRequested).toBeUndefined();
+                    expect(Object.keys(sessionStorage).indexOf('cookieRedirectRequested')).toEqual(-1);
                 }));
             });
         });
