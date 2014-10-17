@@ -8,7 +8,7 @@ module.exports = function(config) {
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
             {pattern:'bower_components/thk-notifications-mock/src/notifications.mock.js'},
             {pattern:'bower_components/thk-web-storage-mock/src/web.storage.mock.js'},
-            {pattern:'bower_components/thk-config-mock/src/config.mock.js'},
+            {pattern:'bower_components/binarta.config.angular/src/config.js'},
             {pattern:'bower_components/thk-rest-client-mock/src/rest.client.mock.js'},
             {pattern:'src/main/**/*.js'},
             {pattern:'src/test/**/*.js'}

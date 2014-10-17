@@ -7,10 +7,6 @@ describe('cookies', function() {
     beforeEach(module('cookies'));
     beforeEach(module('angular.usecase.adapter'));
     beforeEach(module('rest.client'));
-    angular.module('config', [])
-        .factory('config', function () {
-            return {};
-        });
     beforeEach(module('window.mock'));
     beforeEach(module('web.storage'));
 
@@ -52,7 +48,7 @@ describe('cookies', function() {
                 }));
 
                 it('permission granted flag was set to false', inject(function($location) {
-                    expect($location.$$search.permissionGranted).toEqual('false');
+                    expect($location.search().permissionGranted).toEqual('false');
                 }));
 
                 it('window location was not changed', inject(function($window) {
@@ -113,7 +109,13 @@ describe('cookies', function() {
     describe('cookie permission granted directive', function() {
         var directive, scope, topics, registry, templateSpy, templateArgs;
 
-        beforeEach(inject(function ($rootScope, ngRegisterTopicHandler, topicRegistryMock) {
+        function assertRendered(args) {
+            expect(templateArgs.name).toEqual(args.templateUrl);
+            expect(templateArgs.module).toEqual('cookies');
+            expect(templateArgs.scope).toEqual(scope);
+        }
+
+        beforeEach(inject(function ($rootScope, $location, ngRegisterTopicHandler, topicRegistryMock, cookieNoticeDialog) {
             topics = topicRegistryMock;
             registry = ngRegisterTopicHandler;
             templateSpy = {
@@ -121,9 +123,9 @@ describe('cookies', function() {
                     templateArgs = args;
                 }
             };
-            directive = CookiePermissionGrantedDirectiveFactory(location, registry, config, templateSpy);
+            directive = CookiePermissionGrantedDirectiveFactory($location, registry, config, templateSpy, cookieNoticeDialog);
             scope = $rootScope.$new();
-            location.$$search = {};
+            $location.search({});
         }));
 
         it('restrict to elements', function() {
@@ -170,24 +172,51 @@ describe('cookies', function() {
                 {granted:'true', name:'cookie-notice.html'},
                 {granted:'false', name:'configure-cookies.html'}
             ].forEach(function(args) {
-                it('test', function() {
+                it('when permission granted is ' + args.granted + ' then render ' + args.name, function() {
                     location.search('permissionGranted', args.granted);
                     directive.link(scope);
-
-                    expect(templateArgs).toEqual({
-                        scope:scope,
-                        module:'cookies',
-                        name:args.name
-                    })
+                    assertRendered({templateUrl:args.name});
                 })
             });
 
             [null].forEach(function(value) {
                 it("when permission is not granted with " + value, function() {
-                    location.$$search.permissionGranted = value;
+                    location.search({permissionGranted:value});
                     scope.templateUrl = 'defined';
                     directive.link(scope);
                     expect(scope.templateUrl).toBeUndefined();
+                });
+            });
+        });
+
+        describe('given configured to automatically grant permission and linking', function() {
+            beforeEach(inject(function(config) {
+                config.cookiesAutoGrantPermission = true;
+                directive.link(scope);
+            }));
+
+            it('when linking open cookie notice', function() {
+                assertRendered({templateUrl:'cookie-notice.html'})
+            });
+
+            describe('and', function() {
+                beforeEach(function() {
+                    templateArgs = undefined;
+                });
+
+                function assertIgnored() {
+                    expect(scope.templateUrl).toBeUndefined();
+                    expect(templateArgs).toBeUndefined();
+                }
+
+                it('when linking twice do not open cookie notice again', function() {
+                    directive.link(scope);
+                    assertIgnored();
+                });
+
+                it('when changing route close the cookie notice', function() {
+                    scope.$broadcast('$routeChangeSuccess');
+                    assertIgnored();
                 });
             });
         });
