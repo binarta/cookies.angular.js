@@ -212,7 +212,14 @@ describe('cookies', function() {
                     expect(templateArgs).toBeUndefined();
                 }
 
-                it('when changing route close the cookie notice', function() {
+                it('on second route still show the notice', function() {
+                    scope.$broadcast('$routeChangeSuccess');
+                    assertRendered({templateUrl:'cookie-notice.html'});
+                });
+
+                it('on third route close the notice', function() {
+                    scope.$broadcast('$routeChangeSuccess');
+                    templateArgs = undefined;
                     scope.$broadcast('$routeChangeSuccess');
                     assertIgnored();
                 });

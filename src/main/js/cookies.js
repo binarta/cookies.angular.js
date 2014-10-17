@@ -50,7 +50,7 @@ function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $wi
 
 function CookieNoticeDialogFactory(config, $location, localStorage) {
     function isPermissionAutomaticallyGranted() {
-        return config.cookiesAutoGrantPermission && !localStorage.cookiesDialogSeen;
+        return config.cookiesAutoGrantPermission && (!localStorage.cookiesDialogSeen || localStorage.cookiesDialogSeen < 2);
     }
 
     function isPermissionRequired() {
@@ -75,7 +75,10 @@ function CookieNoticeDialogFactory(config, $location, localStorage) {
     }
 
     function remember() {
-        localStorage.cookiesDialogSeen = true;
+        if(!localStorage.cookiesDialogSeen)
+            localStorage.cookiesDialogSeen = 1;
+        else
+            localStorage.cookiesDialogSeen += 1;
     }
 
     return function(args) {
