@@ -115,7 +115,6 @@ function CookiePermissionGrantedDirectiveFactory($location, ngRegisterTopicHandl
             scope.$on('$routeChangeSuccess', function () {
                 init();
             });
-            init();
 
             if(config.supportedLanguages) subscribeI18nLocale();
 

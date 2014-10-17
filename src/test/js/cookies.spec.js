@@ -175,6 +175,7 @@ describe('cookies', function() {
                 it('when permission granted is ' + args.granted + ' then render ' + args.name, function() {
                     location.search('permissionGranted', args.granted);
                     directive.link(scope);
+                    scope.$broadcast('$routeChangeSuccess');
                     assertRendered({templateUrl:args.name});
                 })
             });
@@ -184,6 +185,7 @@ describe('cookies', function() {
                     location.search({permissionGranted:value});
                     scope.templateUrl = 'defined';
                     directive.link(scope);
+                    scope.$broadcast('$routeChangeSuccess');
                     expect(scope.templateUrl).toBeUndefined();
                 });
             });
@@ -193,6 +195,7 @@ describe('cookies', function() {
             beforeEach(inject(function(config) {
                 config.cookiesAutoGrantPermission = true;
                 directive.link(scope);
+                scope.$broadcast('$routeChangeSuccess');
             }));
 
             it('when linking open cookie notice', function() {
@@ -208,11 +211,6 @@ describe('cookies', function() {
                     expect(scope.templateUrl).toBeUndefined();
                     expect(templateArgs).toBeUndefined();
                 }
-
-                it('when linking twice do not open cookie notice again', function() {
-                    directive.link(scope);
-                    assertIgnored();
-                });
 
                 it('when changing route close the cookie notice', function() {
                     scope.$broadcast('$routeChangeSuccess');
