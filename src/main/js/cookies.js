@@ -4,7 +4,7 @@ angular.module('cookies', ['ngRoute', 'notifications', 'config'])
     .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', 'cookieNoticeDialog', CookiePermissionGrantedDirectiveFactory])
     .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
     .config(['configProvider', ApplyDefaultCookiesConfiguration])
-    .run(function(topicRegistry, hasCookie, config, onCookieNotFoundPresenter) {
+    .run(['topicRegistry', 'hasCookie', 'config', 'onCookieNotFoundPresenter', function(topicRegistry, hasCookie, config, onCookieNotFoundPresenter) {
         if(config.cookiesBinartaRedirect)
             topicRegistry.subscribe('app.start', function() {
                 var callback = function() {
@@ -13,7 +13,7 @@ angular.module('cookies', ['ngRoute', 'notifications', 'config'])
                 };
                 topicRegistry.subscribe('i18n.locale', callback);
             });
-    });
+    }]);
 
 function ApplyDefaultCookiesConfiguration(configProvider) {
     configProvider.add({cookiesBinartaRedirect:true});
