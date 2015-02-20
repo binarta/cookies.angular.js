@@ -4,6 +4,7 @@ describe('cookies', function() {
     var config;
     var location;
 
+    beforeEach(module('checkpoint'));
     beforeEach(module('cookies'));
     beforeEach(module('angular.usecase.adapter'));
     beforeEach(module('rest.client'));
@@ -107,24 +108,12 @@ describe('cookies', function() {
     });
 
     describe('cookie permission granted directive', function() {
-        var directive, scope, topics, registry, templateSpy, templateArgs;
+        var directive, scope, account;
 
-        function assertRendered(args) {
-            expect(templateArgs.name).toEqual(args.templateUrl);
-            expect(templateArgs.module).toEqual('cookies');
-            expect(templateArgs.scope).toEqual(scope);
-        }
-
-        beforeEach(inject(function ($rootScope, $location, ngRegisterTopicHandler, topicRegistryMock, cookieNoticeDialog) {
-            topics = topicRegistryMock;
-            registry = ngRegisterTopicHandler;
-            templateSpy = {
-                setTemplateUrl: function (args){
-                    templateArgs = args;
-                }
-            };
-            directive = CookiePermissionGrantedDirectiveFactory($location, registry, config, templateSpy, cookieNoticeDialog);
+        beforeEach(inject(function ($rootScope, $location, cookieNoticeDialog, _account_) {
             scope = $rootScope.$new();
+            account = _account_;
+            directive = CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account);
             $location.search({});
         }));
 
@@ -137,58 +126,82 @@ describe('cookies', function() {
         });
 
         it('template', function () {
-            expect(directive.template).toEqual('<div ng-include="templateUrl"></div>');
+            expect(directive.template).toEqual(jasmine.any(String));
         });
 
         describe('on link', function() {
-            describe('if localization is supported', function () {
-                beforeEach(function () {
-                    config.supportedLanguages = 'locale';
-                    directive.link(scope);
-                });
+            describe('when not logged in', function () {
 
-                describe('when i18n locale notification received', function () {
-                    beforeEach(function () {
-                        topics['i18n.locale']('locale');
-                    });
-
-                    it('put locale prefix on scope', function () {
-                        expect(scope.localePrefix).toEqual('locale/');
-                    });
-                });
-            });
-
-            describe('if localization is not supported', function () {
-                beforeEach(function () {
-                    directive.link(scope);
-                });
-
-                it('locale is empty', function () {
-                    expect(scope.localePrefix).toBeUndefined();
-                });
-            });
-
-            [
-                {granted:'true', name:'cookie-notice.html'},
-                {granted:'false', name:'configure-cookies.html'}
-            ].forEach(function(args) {
-                it('when permission granted is ' + args.granted + ' then render ' + args.name, function() {
-                    location.search('permissionGranted', args.granted);
+                it('when permission granted is true then show cookie message', function() {
+                    location.search('permissionGranted', 'true');
                     directive.link(scope);
                     scope.$broadcast('$routeChangeSuccess');
-                    assertRendered({templateUrl:args.name});
-                })
-            });
+                    scope.$digest();
 
-            [null].forEach(function(value) {
-                it("when permission is not granted with " + value, function() {
-                    location.search({permissionGranted:value});
-                    scope.templateUrl = 'defined';
+                    expect(scope.cookie).toBeTruthy();
+                    expect(scope.configureCookies).toBeFalsy();
+                });
+
+                it('when permission granted is false then show configure cookie message', function() {
+                    location.search('permissionGranted', 'false');
                     directive.link(scope);
                     scope.$broadcast('$routeChangeSuccess');
-                    expect(scope.templateUrl).toBeUndefined();
+                    scope.$digest();
+
+                    expect(scope.cookie).toBeFalsy();
+                    expect(scope.configureCookies).toBeTruthy();
+                });
+
+                [null].forEach(function(value) {
+                    it("when permission is not granted with " + value, function() {
+                        location.search({permissionGranted:value});
+                        scope.templateUrl = 'defined';
+                        directive.link(scope);
+                        scope.$broadcast('$routeChangeSuccess');
+                        scope.$digest();
+
+                        expect(scope.cookie).toBeFalsy();
+                        expect(scope.configureCookies).toBeFalsy();
+                    });
                 });
             });
+
+            describe('when logged in', function () {
+                beforeEach(function () {
+                    account.loggedIn = true;
+                });
+
+                it('when permission granted is true then render nothing', function() {
+                    location.search('permissionGranted', 'true');
+                    directive.link(scope);
+                    scope.$broadcast('$routeChangeSuccess');
+
+                    expect(scope.cookie).toBeFalsy();
+                    expect(scope.configureCookies).toBeFalsy();
+                });
+
+                it('when permission granted is false then show configure cookie message', function() {
+                    location.search('permissionGranted', 'false');
+                    directive.link(scope);
+                    scope.$broadcast('$routeChangeSuccess');
+
+                    expect(scope.cookie).toBeFalsy();
+                    expect(scope.configureCookies).toBeTruthy();
+                });
+
+                [null].forEach(function(value) {
+                    it("when permission is not granted with " + value, function() {
+                        location.search({permissionGranted:value});
+                        scope.templateUrl = 'defined';
+                        directive.link(scope);
+                        scope.$broadcast('$routeChangeSuccess');
+
+                        expect(scope.cookie).toBeFalsy();
+                        expect(scope.configureCookies).toBeFalsy();
+                    });
+                });
+            });
+
         });
 
         describe('given configured to automatically grant permission and linking', function() {
@@ -196,32 +209,26 @@ describe('cookies', function() {
                 config.cookiesAutoGrantPermission = true;
                 directive.link(scope);
                 scope.$broadcast('$routeChangeSuccess');
+                scope.$digest();
             }));
 
             it('when linking open cookie notice', function() {
-                assertRendered({templateUrl:'cookie-notice.html'})
+                expect(scope.cookie).toBeTruthy();
+                expect(scope.configureCookies).toBeFalsy();
             });
 
             describe('and', function() {
-                beforeEach(function() {
-                    templateArgs = undefined;
-                });
-
-                function assertIgnored() {
-                    expect(scope.templateUrl).toBeUndefined();
-                    expect(templateArgs).toBeUndefined();
-                }
-
                 it('on second route still show the notice', function() {
                     scope.$broadcast('$routeChangeSuccess');
-                    assertRendered({templateUrl:'cookie-notice.html'});
+
+                    expect(scope.cookie).toBeTruthy();
                 });
 
                 it('on third route close the notice', function() {
                     scope.$broadcast('$routeChangeSuccess');
-                    templateArgs = undefined;
                     scope.$broadcast('$routeChangeSuccess');
-                    assertIgnored();
+
+                    expect(scope.cookie).toBeFalsy();
                 });
             });
         });

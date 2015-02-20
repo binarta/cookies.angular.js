@@ -1,7 +1,7 @@
-angular.module('cookies', ['ngRoute', 'notifications', 'config'])
+angular.module('cookies', ['notifications', 'config', 'checkpoint'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
-    .directive('cookiePermissionGranted', ['$location', 'ngRegisterTopicHandler', 'config', 'binTemplate', 'cookieNoticeDialog', CookiePermissionGrantedDirectiveFactory])
+    .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory])
     .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
     .config(['configProvider', ApplyDefaultCookiesConfiguration])
     .run(['topicRegistry', 'hasCookie', 'config', 'onCookieNotFoundPresenter', function(topicRegistry, hasCookie, config, onCookieNotFoundPresenter) {
@@ -90,42 +90,55 @@ function CookieNoticeDialogFactory(config, $location, localStorage) {
     }
 }
 
-function CookiePermissionGrantedDirectiveFactory($location, ngRegisterTopicHandler, config, binTemplate, cookieNoticeDialog) {
+function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
     return {
         restrict: 'E',
         scope: true,
-        template: '<div ng-include="templateUrl"></div>',
+        template:
+        '<div id="binarta-cookie-notice-wrapper" ng-if="configureCookies || cookie">' +
+        '<div id="binarta-cookie-notice">' +
+        '<div ng-if="configureCookies">' +
+        '<p i18n class="inline" code="configure.cookies.notice.message" editor="full"' +
+        'default="Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our <a href=\'#!{{localePrefix}}/conditions\'>conditions</a>." ' +
+        'ng-bind-html="var">' +
+        '</p>' +
+        '</div>' +
+        '<div ng-if="cookie">' +
+        '<p i18n class="inline" code="cookie.notice.message" editor="full"' +
+        'default="This website uses cookies. By continuing to use this website without changing your settings, you agree with our <a href=\'#!{{localePrefix}}/conditions\'>conditions</a>." ' +
+        'ng-bind-html="var">' +
+        '</p>' +
+        '</div>' +
+        '<button type="button" class="btn btn-default inline" i18n code="cookie.notice.close.button" default="close" ng-click="close()">' +
+        '<i class="fa fa-times fa-fw"></i> {{var}}' +
+        '</button>' +
+        '</div>' +
+        '</div>',
         link: function(scope) {
-            var names = {'true':'cookie-notice.html', 'false': 'configure-cookies.html'};
-
-            var render = function(template) {
-                binTemplate.setTemplateUrl({scope:scope, module:'cookies', name:template})
-            };
-
-            function init() {
+            scope.$on('$routeChangeSuccess', function () {
                 cookieNoticeDialog({
                     enableCookies:function() {
-                        render('configure-cookies.html')
+                        scope.cookie = false;
+                        scope.configureCookies = true;
                     },
                     showCookieNotice:function() {
-                        render('cookie-notice.html')
+                        account.getMetadata().then(function() {
+                            scope.close();
+                        }, function () {
+                            scope.configureCookies = false;
+                            scope.cookie = true;
+                        });
                     },
                     ignore:function() {
-                        delete scope.templateUrl;
+                        scope.close();
                     }
                 });
-            }
-            scope.$on('$routeChangeSuccess', function () {
-                init();
             });
 
-            if(config.supportedLanguages) subscribeI18nLocale();
-
-            function subscribeI18nLocale () {
-                ngRegisterTopicHandler(scope, 'i18n.locale', function (locale) {
-                    scope.localePrefix = locale + '/';
-                });
-            }
+            scope.close = function () {
+                scope.cookie = false;
+                scope.configureCookies = false;
+            };
         }
     }
 }

@@ -1,0 +1,32 @@
+@binarta-cookie-notice-color-bg: #00AFD0;
+@binarta-cookie-notice-color: #ffffff;
+
+#binarta-cookie-notice-wrapper {
+  width: 100%;
+  color: @binarta-cookie-notice-color;
+  background: @binarta-cookie-notice-color-bg;
+  text-align: center;
+  z-index: 1035;
+
+  #binarta-cookie-notice {
+    padding: 10px 20px;
+
+    p {
+      margin: 0 0 8px 0;
+      padding: 0;
+    }
+    a {
+      color: @binarta-cookie-notice-color;
+      font-weight: bold;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+    .btn-default {
+      color: @binarta-cookie-notice-color;
+      background: darken(@binarta-cookie-notice-color-bg, 5%);
+      text-shadow: none;
+      border: none;
+    }
+  }
+}
