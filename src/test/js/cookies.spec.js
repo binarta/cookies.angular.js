@@ -218,14 +218,7 @@ describe('cookies', function() {
             });
 
             describe('and', function() {
-                it('on second route still show the notice', function() {
-                    scope.$broadcast('$routeChangeSuccess');
-
-                    expect(scope.cookie).toBeTruthy();
-                });
-
-                it('on third route close the notice', function() {
-                    scope.$broadcast('$routeChangeSuccess');
+                it('on second route close the notice', function() {
                     scope.$broadcast('$routeChangeSuccess');
 
                     expect(scope.cookie).toBeFalsy();
