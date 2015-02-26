@@ -50,7 +50,7 @@ function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $wi
 
 function CookieNoticeDialogFactory(config, $location, localStorage) {
     function isPermissionAutomaticallyGranted() {
-        return config.cookiesAutoGrantPermission && !localStorage.cookiesDialogSeen;
+        return config.cookiesAutoGrantPermission && (!localStorage.cookiesDialogSeen || parseInt(localStorage.cookiesDialogSeen) < 2);
     }
 
     function isPermissionRequired() {
@@ -75,16 +75,24 @@ function CookieNoticeDialogFactory(config, $location, localStorage) {
     }
 
     function remember() {
-        localStorage.cookiesDialogSeen = true;
+        if (!localStorage.cookiesDialogSeen)
+            localStorage.cookiesDialogSeen = 1;
+        else
+            localStorage.cookiesDialogSeen = parseInt(localStorage.cookiesDialogSeen) + 1;
     }
 
-    return function(args) {
-        if(isCookieDialogRequired())
-            if(isCookiesEnabled()) showCookieNoticeAndRemember(args);
-            else args.enableCookies();
-        else args.ignore();
+    return new function() {
+        this.show = function(args) {
+            if(isCookieDialogRequired())
+                if(isCookiesEnabled()) showCookieNoticeAndRemember(args);
+                else args.enableCookies();
+            else args.ignore();
+        };
 
-    }
+        this.close = function() {
+            localStorage.cookiesDialogSeen = 2;
+        };
+    };
 }
 
 function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
@@ -113,7 +121,7 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
         '</div>',
         link: function(scope) {
             scope.$on('$routeChangeSuccess', function () {
-                cookieNoticeDialog({
+                cookieNoticeDialog.show({
                     enableCookies:function() {
                         scope.cookie = false;
                         scope.configureCookies = true;
@@ -135,6 +143,7 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
             scope.close = function () {
                 scope.cookie = false;
                 scope.configureCookies = false;
+                cookieNoticeDialog.close();
             };
         }
     }

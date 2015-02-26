@@ -218,10 +218,39 @@ describe('cookies', function() {
             });
 
             describe('and', function() {
-                it('on second route close the notice', function() {
+                it('on second route still show the notice', function() {
                     scope.$broadcast('$routeChangeSuccess');
+                    scope.$digest();
+                    expect(scope.cookie).toBeTruthy();
+                });
 
+                it('on third route close the notice', function() {
+                    scope.$broadcast('$routeChangeSuccess');
+                    scope.$broadcast('$routeChangeSuccess');
                     expect(scope.cookie).toBeFalsy();
+                });
+
+                describe('cookie notice gets closed', function() {
+                    beforeEach(function() {
+                        scope.close();
+                    });
+
+                    it('then cookie notice is not displayed', function() {
+                        expect(scope.cookie).toBeFalsy();
+                        expect(scope.configureCookies).toBeFalsy();
+                    });
+
+                    describe('and we change routes', function() {
+                        beforeEach(function() {
+                            scope.$broadcast('$routeChangeSuccess');
+                            scope.$digest();
+                        });
+
+                        it('then cookie notice is still not displayed', function() {
+                            expect(scope.cookie).toBeFalsy();
+                            expect(scope.configureCookies).toBeFalsy();
+                        })
+                    });
                 });
             });
         });
