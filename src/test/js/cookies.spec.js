@@ -4,6 +4,7 @@ describe('cookies', function() {
     var config;
     var location;
 
+    angular.module('toggle.edit.mode', []);
     beforeEach(module('checkpoint'));
     beforeEach(module('cookies'));
     beforeEach(module('angular.usecase.adapter'));

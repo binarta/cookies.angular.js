@@ -1,4 +1,4 @@
-angular.module('cookies', ['notifications', 'config', 'checkpoint'])
+angular.module('cookies', ['angular.usecase.adapter', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
     .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory])
