@@ -101,22 +101,25 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
         scope: true,
         template:
         '<div id="binarta-cookie-notice-wrapper" ng-if="configureCookies || cookie">' +
-        '<div id="binarta-cookie-notice">' +
-        '<div ng-if="configureCookies">' +
-        '<p i18n class="inline" code="configure.cookies.notice.message" editor="full"' +
-        'default="Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our <a href=\'#!{{localePrefix}}/conditions\'>conditions</a>." ' +
+        '<div id="binarta-cookie-notice" ng-click="close()">' +
+        '<div class="binarta-cookie-notice-message" ng-if="configureCookies">' +
+        '<p i18n class="inline" code="configure.cookies.notice.message.v1" editor="full"' +
+        'default="Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions." ' +
         'ng-bind-html="var">' +
         '</p>' +
         '</div>' +
-        '<div ng-if="cookie">' +
-        '<p i18n class="inline" code="cookie.notice.message" editor="full"' +
-        'default="This website uses cookies. By continuing to use this website without changing your settings, you agree with our <a href=\'#!{{localePrefix}}/conditions\'>conditions</a>." ' +
+        '<div class="binarta-cookie-notice-message" ng-if="cookie">' +
+        '<p i18n class="inline" code="cookie.notice.message.v1" editor="full"' +
+        'default="This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions." ' +
         'ng-bind-html="var">' +
         '</p>' +
         '</div>' +
-        '<button type="button" class="btn btn-default inline" i18n code="cookie.notice.close.button" default="close" ng-click="close()">' +
-        '<i class="fa fa-times fa-fw"></i> {{var}}' +
-        '</button>' +
+        '<span class="binarta-cookie-notice-close">' +
+        '<span class="binarta-cookie-notice-close-inner">' +
+        '<i class="fa fa-times fa-fw"></i>' +
+        '<span class="binarta-cookie-notice-close-label" i18n code="cookie.notice.close.button" default="close" ng-bind="var"></span>' +
+        '</span>' +
+        '</span>' +
         '</div>' +
         '</div>',
         link: function(scope) {
