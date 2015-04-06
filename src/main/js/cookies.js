@@ -103,13 +103,13 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
         '<div id="binarta-cookie-notice-wrapper" ng-if="configureCookies || cookie">' +
         '<div id="binarta-cookie-notice" ng-click="close()">' +
         '<div class="binarta-cookie-notice-message" ng-if="configureCookies">' +
-        '<p i18n class="inline" code="configure.cookies.notice.message.v1" editor="full"' +
+        '<p i18n class="inline" code="configure.cookies.notice.message" editor="full"' +
         'default="Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions." ' +
         'ng-bind-html="var">' +
         '</p>' +
         '</div>' +
         '<div class="binarta-cookie-notice-message" ng-if="cookie">' +
-        '<p i18n class="inline" code="cookie.notice.message.v1" editor="full"' +
+        '<p i18n class="inline" code="cookie.notice.message" editor="full"' +
         'default="This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions." ' +
         'ng-bind-html="var">' +
         '</p>' +
