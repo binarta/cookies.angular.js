@@ -1,0 +1,19 @@
+{
+  "msgs":{
+    "default":{
+      "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
+      "cookie.notice.message": "Deze website gebruikt cookies. Door deze website te gebruiken zonder je instellingen te wijzigen ga je akkoord met onze voorwaarden.",
+      "cookie.notice.close.button": "sluiten"
+    },
+    "nl":{
+      "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
+      "cookie.notice.message": "Deze website gebruikt cookies. Door deze website te gebruiken zonder je instellingen te wijzigen ga je akkoord met onze voorwaarden.",
+      "cookie.notice.close.button": "sluiten"
+    },
+    "en":{
+      "configure.cookies.notice.message": "Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions.",
+      "cookie.notice.message": "This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions.",
+      "cookie.notice.close.button": "close"
+    }
+  }
+}
