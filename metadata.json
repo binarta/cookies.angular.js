@@ -1,9 +1,9 @@
 {
   "msgs":{
     "default":{
-      "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
-      "cookie.notice.message": "Deze website gebruikt cookies. Door deze website te gebruiken zonder je instellingen te wijzigen ga je akkoord met onze voorwaarden.",
-      "cookie.notice.close.button": "sluiten"
+      "configure.cookies.notice.message": "Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions.",
+      "cookie.notice.message": "This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions.",
+      "cookie.notice.close.button": "close"
     },
     "nl":{
       "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
@@ -14,6 +14,16 @@
       "configure.cookies.notice.message": "Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions.",
       "cookie.notice.message": "This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions.",
       "cookie.notice.close.button": "close"
+    },
+    "fr":{
+      "configure.cookies.notice.message": "Veuillez configurer votre navigateur de telle façon qu'il accepte les cookies provenant de tiers. Voir les conditions pour plus d'informations sur l'utilisation des cookies.",
+      "cookie.notice.message": "Ce site utilise des cookies. En poursuivant votre navigation sur ce site sans modifier vos paramètres, vous marquez votre accord avec nos conditions.",
+      "cookie.notice.close.button": "fermer"
+    },
+    "de":{
+      "configure.cookies.notice.message": "Konfigurieren Sie Ihren Browser bitte so, dass Cookies von Dritten akzeptiert werden. Nähere Informationen über unseren Umgang mit Cookie finden Sie in unseren Allgemeinen Geschäftsbedingungen.",
+      "cookie.notice.message": "Diese Website verwendet Cookies. Mit der Nutzung dieser Website ohne Änderung Ihrer Browser-Einstellungen erklären Sie Ihre Anerkennung unserer Allgemeinen Geschäftsbedingungen.",
+      "cookie.notice.close.button": "schließen"
     }
   }
 }
