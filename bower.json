@@ -3,7 +3,6 @@
   "main": [
     "./src/main/js/cookies.js",
     "./less/cookie.less",
-    "./metadata.json",
     "./metadata-system.json"
   ],
   "dependencies": {
