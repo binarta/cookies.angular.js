@@ -6,7 +6,7 @@
   color: @binarta-cookie-notice-color;
   background: @binarta-cookie-notice-color-bg;
   text-align: center;
-  z-index: 1035;
+  z-index: 1034;
   position: relative;
   overflow: hidden;
 
@@ -56,6 +56,13 @@
   @media (min-width: 768px) {
     #binarta-cookie-notice {
       padding: 10px 60px;
+      opacity: 0.8;
+      transition: opacity 250ms ease;
+
+      &:hover {
+        opacity: 1;
+      }
+
       .binarta-cookie-notice-message {
         font-size: 13px;
       }
