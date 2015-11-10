@@ -123,6 +123,8 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
         '</div>' +
         '</div>',
         link: function(scope) {
+            if (navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1) return;
+
             scope.$on('$routeChangeSuccess', function () {
                 cookieNoticeDialog.show({
                     enableCookies:function() {
