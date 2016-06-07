@@ -15,7 +15,7 @@ describe('cookies', function() {
     beforeEach(inject(function($rootScope, usecaseAdapterFactory, restServiceHandler, $location, _config_) {
         scope = $rootScope.$new();
         usecaseFactory = usecaseAdapterFactory;
-        usecaseFactory.andReturn(context);
+        usecaseFactory.and.returnValue(context);
         rest = restServiceHandler;
         location = $location;
         config = _config_;
@@ -79,7 +79,7 @@ describe('cookies', function() {
             });
 
             it('context is created with scope', function() {
-                expect(usecaseFactory.calls[0].args[0]).toEqual(scope);
+                expect(usecaseFactory.calls.first().args[0]).toEqual(scope);
             });
 
             it('will send a POST request', function() {
@@ -95,7 +95,7 @@ describe('cookies', function() {
             });
 
             it('passes the context to the rest service', function() {
-                expect(rest.calls[0].args[0]).toEqual(context);
+                expect(rest.calls.first().args[0]).toEqual(context);
             });
 
             it('context contains a success handler', function() {
