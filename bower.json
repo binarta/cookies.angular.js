@@ -12,7 +12,6 @@
     "binarta.rest.client.angular": "0.*.*",
     "binarta.config.angular":"0.*.*",
     "binarta.web.storage.angular": "0.*.*",
-    "binarta.checkpoint.angular": "0.*.*",
     "binarta.notifications.angular": "1.*.*"
   },
   "devDependencies": {
