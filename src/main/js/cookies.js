@@ -99,29 +99,7 @@ function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
     return {
         restrict: 'E',
         scope: true,
-        template:
-        '<div id="binarta-cookie-notice-wrapper" ng-if="configureCookies || cookie">' +
-        '<div id="binarta-cookie-notice" ng-click="close()">' +
-        '<div class="binarta-cookie-notice-message" ng-if="configureCookies">' +
-        '<p i18n code="configure.cookies.notice.message"' +
-        'default="Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions."' +
-        'read-only ng-bind-html="var">' +
-        '</p>' +
-        '</div>' +
-        '<div class="binarta-cookie-notice-message" ng-if="cookie">' +
-        '<p i18n code="cookie.notice.message"' +
-        'default="This website uses cookies. By continuing to use this website without changing your settings, you agree with our conditions."' +
-        'read-only ng-bind-html="var">' +
-        '</p>' +
-        '</div>' +
-        '<span class="binarta-cookie-notice-close">' +
-        '<span class="binarta-cookie-notice-close-inner">' +
-        '<i class="fa fa-times fa-fw"></i>' +
-        '<span class="binarta-cookie-notice-close-label" i18n code="cookie.notice.close.button" default="close" read-only ng-bind="var"></span>' +
-        '</span>' +
-        '</span>' +
-        '</div>' +
-        '</div>',
+        templateUrl: 'bin-cookie-notice.html',
         link: function(scope) {
             if (navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1) return;
 

@@ -1,5 +1,6 @@
 {
   "default": {
-    "cookies": "bower_components/binarta.cookies.angular/src/main/js/cookies.js"
+    "cookies": "bower_components/binarta.cookies.angular/src/main/js/cookies.js",
+    "cookies.templates": "bower_components/binarta.cookies.angular/src/main/js/cookies-tpls.js"
   }
 }

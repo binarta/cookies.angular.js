@@ -1,10 +1,7 @@
 {
   "name": "binarta.cookies.angular",
   "main": [
-    "./src/main/js/cookies.js",
-    "./less/cookie.less",
-    "./metadata-system.json",
-    "./sources.json"
+    "./src/cookies.js"
   ],
   "dependencies": {
     "binarta.angularx": "0.*.*",
