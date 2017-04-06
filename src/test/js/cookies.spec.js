@@ -1,5 +1,5 @@
 describe('cookies', function() {
-    var $window, $location, scope, usecaseFactory, rest, service, sessionStorage, localStorage;
+    var $window, $location, scope, rest, service, sessionStorage, localStorage;
     var context = {};
     var config;
 
@@ -10,12 +10,10 @@ describe('cookies', function() {
         $provide.value('$window', {});
     }));
 
-    beforeEach(inject(function($rootScope, _$window_, _$location_, usecaseAdapterFactory, restServiceHandler, _config_, _sessionStorage_, _localStorage_) {
+    beforeEach(inject(function($rootScope, _$window_, _$location_, restServiceHandler, _config_, _sessionStorage_, _localStorage_) {
         scope = $rootScope.$new();
         $window = _$window_;
         $location = _$location_;
-        usecaseFactory = usecaseAdapterFactory;
-        usecaseFactory.and.returnValue(context);
         rest = restServiceHandler;
         config = _config_;
         sessionStorage = _sessionStorage_;
@@ -70,41 +68,33 @@ describe('cookies', function() {
         var onNotFound = function() {};
 
         beforeEach(inject(function() {
-            service = HasCookieFactory(usecaseFactory, rest, config);
+            service = HasCookieFactory(rest, config);
         }));
 
         describe('when called', function() {
             beforeEach(function() {
                 config.baseUri = 'baseUri/';
-                service(scope, onSuccess, onNotFound);
-            });
-
-            it('context is created with scope', function() {
-                expect(usecaseFactory.calls.first().args[0]).toEqual(scope);
+                service(onSuccess, onNotFound);
             });
 
             it('will send a POST request', function() {
-                expect(context.params.method).toEqual('POST');
+                expect(rest.calls.first().args[0].params.method).toEqual('POST');
             });
 
             it('will send a request to cookie resource', function() {
-                expect(context.params.url).toEqual('baseUri/api/cookie')
+                expect(rest.calls.first().args[0].params.url).toEqual('baseUri/api/cookie')
             });
 
             it('will send requests with cookies', function() {
-                expect(context.params.withCredentials).toEqual(true);
+                expect(rest.calls.first().args[0].params.withCredentials).toEqual(true);
             });
 
-            it('passes the context to the rest service', function() {
-                expect(rest.calls.first().args[0]).toEqual(context);
+            it('contains a success handler', function() {
+                expect(rest.calls.first().args[0].success).toEqual(onSuccess);
             });
 
-            it('context contains a success handler', function() {
-                expect(context.success).toEqual(onSuccess);
-            });
-
-            it('context contains a not found handler', function() {
-                expect(context.notFound).toEqual(onNotFound);
+            it('contains a not found handler', function() {
+                expect(rest.calls.first().args[0].notFound).toEqual(onNotFound);
             });
         });
     });

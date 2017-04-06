@@ -1,12 +1,11 @@
 {
   "name": "binarta.cookies.angular",
   "main": [
-    "./src/cookies.js"
+    "./src/main/js/cookies.js"
   ],
   "dependencies": {
     "binartajs-angular1": "1.*.*",
     "binarta.angularx": "0.*.*",
-    "binarta.usecase.adapter.angular": "0.*.*",
     "binarta.rest.client.angular": "0.*.*",
     "binarta.config.angular":"0.*.*",
     "binarta.web.storage.angular": "0.*.*",

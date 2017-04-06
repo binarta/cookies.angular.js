@@ -1,5 +1,5 @@
-angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'angular.usecase.adapter', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
-    .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
+angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
+    .factory('hasCookie', ['restServiceHandler', 'config', HasCookieFactory])
     .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
     .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory])
     .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
@@ -9,7 +9,7 @@ angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpoint
             topicRegistry.subscribe('app.start', function() {
                 var callback = function() {
                     topicRegistry.unsubscribe('i18n.locale', callback);
-                    hasCookie({}, null, onCookieNotFoundPresenter);
+                    hasCookie(null, onCookieNotFoundPresenter);
                 };
                 topicRegistry.subscribe('i18n.locale', callback);
             });
@@ -19,18 +19,18 @@ function ApplyDefaultCookiesConfiguration(configProvider) {
     configProvider.add({cookiesBinartaRedirect:true});
 }
 
-function HasCookieFactory(usecaseAdapterFactory, restServiceHandler, config) {
-    return function(scope, onSuccess, onNotFound) {
-        var ctx = usecaseAdapterFactory(scope);
-        ctx.params = {
-            method: 'POST',
-            url: (config.baseUri || '') + 'api/cookie',
-            withCredentials: true
-        };
-        ctx.success = onSuccess;
-        ctx.notFound = onNotFound;
-        restServiceHandler(ctx);
-    }
+function HasCookieFactory(restServiceHandler, config) {
+    return function(onSuccess, onNotFound) {
+        restServiceHandler({
+            params: {
+                method: 'POST',
+                url: (config.baseUri || '') + 'api/cookie',
+                withCredentials: true
+            },
+            success: onSuccess,
+            notFound: onNotFound
+        });
+    };
 }
 
 function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $window) {
