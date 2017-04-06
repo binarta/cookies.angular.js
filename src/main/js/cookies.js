@@ -1,4 +1,4 @@
-angular.module('cookies', ['angular.usecase.adapter', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
+angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'angular.usecase.adapter', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
     .factory('hasCookie', ['usecaseAdapterFactory', 'restServiceHandler', 'config', HasCookieFactory])
     .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
     .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory])
@@ -37,11 +37,16 @@ function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $wi
     return function() {
         isInitialCookieCheck() ? redirectForCookie() : permissionDenied();
     };
-    function isInitialCookieCheck() { return sessionStorage.cookieRedirectRequested == undefined }
+
+    function isInitialCookieCheck() {
+        return angular.isUndefined(sessionStorage.cookieRedirectRequested);
+    }
+
     function redirectForCookie() {
         sessionStorage.cookieRedirectRequested = true;
         $window.location = (config.baseUri || '') + 'api/cookie?redirectUrl=' + encodeURIComponent($window.location);
     }
+
     function permissionDenied() {
         $location.search('permissionGranted', 'false');
         delete sessionStorage.cookieRedirectRequested;
