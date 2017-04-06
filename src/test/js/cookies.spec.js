@@ -1,6 +1,5 @@
 describe('cookies', function() {
-    var $window, $location, scope, rest, service, sessionStorage, localStorage;
-    var context = {};
+    var $window, $location, scope, sessionStorage, localStorage;
     var config;
 
     angular.module('config.templates', []);
@@ -10,94 +9,14 @@ describe('cookies', function() {
         $provide.value('$window', {});
     }));
 
-    beforeEach(inject(function($rootScope, _$window_, _$location_, restServiceHandler, _config_, _sessionStorage_, _localStorage_) {
+    beforeEach(inject(function($rootScope, _$window_, _$location_, _config_, _sessionStorage_, _localStorage_) {
         scope = $rootScope.$new();
         $window = _$window_;
         $location = _$location_;
-        rest = restServiceHandler;
         config = _config_;
         sessionStorage = _sessionStorage_;
         localStorage = _localStorage_;
     }));
-
-    describe('OnCookieNotFoundPresenter', function() {
-        var presenter;
-
-        beforeEach(inject(function(onCookieNotFoundPresenter) {
-            presenter = onCookieNotFoundPresenter;
-        }));
-
-        describe('given we return from a cookie redirect', function() {
-            beforeEach(function() {
-                $window.location = 'L';
-                presenter();
-            });
-
-            it('redirect was requested', function() {
-                expect(sessionStorage.cookieRedirectRequested).toEqual(true);
-            });
-
-            it('window location was updated', function() {
-                expect($window.location).toEqual('api/cookie?redirectUrl=L');
-            });
-
-            describe('and received another redirect and return again', function() {
-                beforeEach(function() {
-                    $window.location = 'L';
-                    $location.search('permissionGranted', 'true');
-                    presenter();
-                });
-
-                it('permission granted flag was set to false', function() {
-                    expect($location.search().permissionGranted).toEqual('false');
-                });
-
-                it('window location was not changed', function() {
-                    expect($window.location).toEqual('L');
-                });
-
-                it('test', function() {
-                    expect(Object.keys(sessionStorage).indexOf('cookieRedirectRequested')).toEqual(-1);
-                });
-            });
-        });
-    });
-
-    describe('HasCookie', function() {
-        var onSuccess = function() {};
-        var onNotFound = function() {};
-
-        beforeEach(inject(function() {
-            service = HasCookieFactory(rest, config);
-        }));
-
-        describe('when called', function() {
-            beforeEach(function() {
-                config.baseUri = 'baseUri/';
-                service(onSuccess, onNotFound);
-            });
-
-            it('will send a POST request', function() {
-                expect(rest.calls.first().args[0].params.method).toEqual('POST');
-            });
-
-            it('will send a request to cookie resource', function() {
-                expect(rest.calls.first().args[0].params.url).toEqual('baseUri/api/cookie')
-            });
-
-            it('will send requests with cookies', function() {
-                expect(rest.calls.first().args[0].params.withCredentials).toEqual(true);
-            });
-
-            it('contains a success handler', function() {
-                expect(rest.calls.first().args[0].success).toEqual(onSuccess);
-            });
-
-            it('contains a not found handler', function() {
-                expect(rest.calls.first().args[0].notFound).toEqual(onNotFound);
-            });
-        });
-    });
 
     describe('cookie permission granted directive', function() {
         var directive, scope, account;

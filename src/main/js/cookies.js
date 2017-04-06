@@ -1,57 +1,6 @@
-angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'rest.client', 'config', 'web.storage', 'checkpoint', 'notifications'])
-    .factory('hasCookie', ['restServiceHandler', 'config', HasCookieFactory])
+angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'config', 'web.storage', 'checkpoint'])
     .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
-    .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory])
-    .factory('onCookieNotFoundPresenter', ['config', 'sessionStorage', '$location', '$window', OnCookieNotFoundPresenterFactory])
-    .config(['configProvider', ApplyDefaultCookiesConfiguration])
-    .run(['topicRegistry', 'hasCookie', 'config', 'onCookieNotFoundPresenter', function(topicRegistry, hasCookie, config, onCookieNotFoundPresenter) {
-        if(config.cookiesBinartaRedirect)
-            topicRegistry.subscribe('app.start', function() {
-                var callback = function() {
-                    topicRegistry.unsubscribe('i18n.locale', callback);
-                    hasCookie(null, onCookieNotFoundPresenter);
-                };
-                topicRegistry.subscribe('i18n.locale', callback);
-            });
-    }]);
-
-function ApplyDefaultCookiesConfiguration(configProvider) {
-    configProvider.add({cookiesBinartaRedirect:true});
-}
-
-function HasCookieFactory(restServiceHandler, config) {
-    return function(onSuccess, onNotFound) {
-        restServiceHandler({
-            params: {
-                method: 'POST',
-                url: (config.baseUri || '') + 'api/cookie',
-                withCredentials: true
-            },
-            success: onSuccess,
-            notFound: onNotFound
-        });
-    };
-}
-
-function OnCookieNotFoundPresenterFactory(config, sessionStorage, $location, $window) {
-    return function() {
-        isInitialCookieCheck() ? redirectForCookie() : permissionDenied();
-    };
-
-    function isInitialCookieCheck() {
-        return angular.isUndefined(sessionStorage.cookieRedirectRequested);
-    }
-
-    function redirectForCookie() {
-        sessionStorage.cookieRedirectRequested = true;
-        $window.location = (config.baseUri || '') + 'api/cookie?redirectUrl=' + encodeURIComponent($window.location);
-    }
-
-    function permissionDenied() {
-        $location.search('permissionGranted', 'false');
-        delete sessionStorage.cookieRedirectRequested;
-    }
-}
+    .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory]);
 
 function CookieNoticeDialogFactory(config, $location, localStorage) {
     function isPermissionAutomaticallyGranted() {

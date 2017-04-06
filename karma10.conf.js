@@ -6,8 +6,6 @@ module.exports = function(config) {
             {pattern:'bower_components/angular/angular.js'},
             {pattern:'bower_components/angular-route/angular-route.js'},
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
-            {pattern:'bower_components/thk-notifications-mock/src/notifications.mock.js'},
-            {pattern:'bower_components/thk-rest-client-mock/src/rest.client.mock.js'},
             {pattern:'bower_components/binartajs/src/binarta.js'},
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
             {pattern:'bower_components/binartajs/src/application.js'},
