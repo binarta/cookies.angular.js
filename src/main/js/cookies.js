@@ -1,87 +1,77 @@
-angular.module('cookies', ['binarta-applicationjs-angular1', 'binarta-checkpointjs-angular1', 'config', 'web.storage', 'checkpoint'])
-    .factory('cookieNoticeDialog', ['config', '$location', 'localStorage', CookieNoticeDialogFactory])
-    .directive('cookiePermissionGranted', ['cookieNoticeDialog', 'account', CookiePermissionGrantedDirectiveFactory]);
+(function () {
+    angular.module('cookies', ['binarta-checkpointjs-angular1', 'web.storage'])
+        .factory('cookieNoticeDialog', ['$rootScope', '$timeout', 'localStorage', 'binarta', CookieNoticeDialogFactory])
+        .component('cookiePermissionGranted', new CookiePermissionGrantedComponent());
 
-function CookieNoticeDialogFactory(config, $location, localStorage) {
-    function isPermissionAutomaticallyGranted() {
-        return config.cookiesAutoGrantPermission && (!localStorage.cookiesDialogSeen || parseInt(localStorage.cookiesDialogSeen) < 2);
-    }
+    function CookieNoticeDialogFactory($rootScope, $timeout, localStorage, binarta) {
+        function isStorageDisabled() {
+            return angular.isUndefined(localStorage.storageAvailable);
+        }
 
-    function isPermissionRequired() {
-        return $location.search().permissionGranted != undefined
-    }
+        function isCookieDialogRequired() {
+            return !localStorage.cookiesDialogSeen;
+        }
 
-    function isCookieDialogRequired() {
-        return isPermissionRequired() || isPermissionAutomaticallyGranted()
-    }
+        function showCookieNoticeAndRemember(args) {
+            $timeout(afterTimeout, 5000);
+            args.showCookieNotice();
+            remember();
 
-    function isPermissionGranted() {
-        return $location.search().permissionGranted == 'true'
-    }
+            function afterTimeout() {
+                var deregister = $rootScope.$on('$routeChangeSuccess', onNextRouteChange);
 
-    function isCookiesEnabled() {
-        return isPermissionGranted() || isPermissionAutomaticallyGranted()
-    }
+                function onNextRouteChange() {
+                    args.close();
+                    deregister();
+                }
+            }
+        }
 
-    function showCookieNoticeAndRemember(args) {
-        args.showCookieNotice();
-        remember();
-    }
+        function remember() {
+            localStorage.cookiesDialogSeen = true;
+        }
 
-    function remember() {
-        if (!localStorage.cookiesDialogSeen)
-            localStorage.cookiesDialogSeen = 1;
-        else
-            localStorage.cookiesDialogSeen = parseInt(localStorage.cookiesDialogSeen) + 1;
-    }
+        function isPhantomJsUserAgent() {
+            return navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1;
+        }
 
-    return new function() {
-        this.show = function(args) {
-            if(isCookieDialogRequired())
-                if(isCookiesEnabled()) showCookieNoticeAndRemember(args);
-                else args.enableCookies();
-            else args.ignore();
-        };
+        return new function() {
+            this.show = function(args) {
+                if (isPhantomJsUserAgent()) args.close();
+                else if (isStorageDisabled()) args.showEnableCookiesNotice();
+                else if (isCookieDialogRequired()) showCookieNoticeAndRemember(args);
+                else args.close();
 
-        this.close = function() {
-            localStorage.cookiesDialogSeen = 2;
-        };
-    };
-}
+                this.close = args.close;
 
-function CookiePermissionGrantedDirectiveFactory(cookieNoticeDialog, account) {
-    return {
-        restrict: 'E',
-        scope: true,
-        templateUrl: 'bin-cookie-notice.html',
-        link: function(scope) {
-            if (navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1) return;
-
-            scope.$on('$routeChangeSuccess', function () {
-                cookieNoticeDialog.show({
-                    enableCookies:function() {
-                        scope.cookie = false;
-                        scope.configureCookies = true;
-                    },
-                    showCookieNotice:function() {
-                        account.getMetadata().then(function() {
-                            scope.close();
-                        }, function () {
-                            scope.configureCookies = false;
-                            scope.cookie = true;
-                        });
-                    },
-                    ignore:function() {
-                        scope.close();
-                    }
+                binarta.checkpoint.profile.eventRegistry.observe({
+                    signedin: args.close
                 });
+            };
+        };
+    }
+
+    function CookiePermissionGrantedComponent() {
+        this.templateUrl = 'bin-cookie-notice.html';
+        this.controller = ['cookieNoticeDialog', function (cookieNoticeDialog) {
+            var $ctrl = this;
+
+            cookieNoticeDialog.show({
+                showEnableCookiesNotice:function() {
+                    $ctrl.cookie = false;
+                    $ctrl.configureCookies = true;
+                },
+                showCookieNotice:function() {
+                    $ctrl.configureCookies = false;
+                    $ctrl.cookie = true;
+                },
+                close:function() {
+                    $ctrl.cookie = false;
+                    $ctrl.configureCookies = false;
+                }
             });
 
-            scope.close = function () {
-                scope.cookie = false;
-                scope.configureCookies = false;
-                cookieNoticeDialog.close();
-            };
-        }
+            $ctrl.close = cookieNoticeDialog.close;
+        }];
     }
-}
+})();

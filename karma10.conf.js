@@ -8,13 +8,10 @@ module.exports = function(config) {
             {pattern:'bower_components/angular-mocks/angular-mocks.js'},
             {pattern:'bower_components/binartajs/src/binarta.js'},
             {pattern:'bower_components/binartajs/src/checkpoint.js'},
-            {pattern:'bower_components/binartajs/src/application.js'},
             {pattern:'bower_components/binartajs/src/gateways.inmem.js'},
             {pattern:'bower_components/binartajs-angular1/src/binarta-angular.js'},
             {pattern:'bower_components/binartajs-angular1/src/binarta-checkpoint-angular.js'},
             {pattern:'bower_components/binartajs-angular1/src/binarta-checkpoint-inmem-angular.js'},
-            {pattern:'bower_components/binartajs-angular1/src/binarta-application-angular.js'},
-            {pattern:'bower_components/binartajs-angular1/src/binarta-application-inmem-angular.js'},
             {pattern:'bower_components/thk-web-storage-mock/src/web.storage.mock.js'},
             {pattern:'src/main/js/cookies.js'},
             {pattern:'src/test/js/*.js'}

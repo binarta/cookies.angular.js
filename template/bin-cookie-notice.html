@@ -1,10 +1,10 @@
-<div id="binarta-cookie-notice-wrapper" ng-if="configureCookies || cookie">
-    <div id="binarta-cookie-notice" ng-click="close()">
-        <div class="binarta-cookie-notice-message" ng-if="configureCookies">
+<div id="binarta-cookie-notice-wrapper" ng-if="$ctrl.configureCookies || $ctrl.cookie">
+    <div id="binarta-cookie-notice" ng-click="$ctrl.close()">
+        <div class="binarta-cookie-notice-message" ng-if="$ctrl.configureCookies">
             <p i18n code="configure.cookies.notice.message" read-only ng-bind-html="::var">
             </p>
         </div>
-        <div class="binarta-cookie-notice-message" ng-if="cookie">
+        <div class="binarta-cookie-notice-message" ng-if="$ctrl.cookie">
             <p i18n code="cookie.notice.message" read-only ng-bind-html="::var">
             </p>
         </div>
