@@ -1,0 +1,52 @@
+cookie-permission-granted {
+  #binarta-cookie-notice-wrapper {
+    position: fixed;
+    z-index: @zindex-popover;
+    bottom: 0;
+    left: 0;
+    margin: 15px;
+    background-color: @brand-primary;
+    color: #fff;
+    font-size: @font-size-small;
+    padding: @padding-small-vertical @padding-small-horizontal;
+    max-width: 400px;
+    border-radius: @border-radius-small;
+    opacity: 0;
+    animation: cookieNoticeAppear 1200ms;
+    animation-delay: 2s;
+    animation-fill-mode: forwards;
+    backface-visibility: hidden;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .binarta-cookie-notice-message {
+    padding-right: 20px;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .binarta-cookie-notice-close {
+    position: absolute;
+    top: @padding-small-vertical/2;
+    right: @padding-small-horizontal/2;
+    font-size: @font-size-base;
+  }
+
+  .binarta-cookie-notice-close-label {
+    display: none;
+  }
+
+  @keyframes cookieNoticeAppear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 0.9;
+    }
+  }
+}
