@@ -16,17 +16,26 @@ cookie-permission-granted {
     animation-delay: 2s;
     animation-fill-mode: forwards;
     backface-visibility: hidden;
-
-    &:hover {
-      cursor: pointer;
-    }
   }
 
   .binarta-cookie-notice-message {
     padding-right: 20px;
 
     p {
+      text-align: center;
       margin: 0;
+    }
+    button {
+        margin: 20px auto;
+        background-color: darken(@brand-primary, 12%);
+    }
+    a.cookies-reject-link {
+        color: white;
+        display: block;
+        margin: auto;
+        text-align: center;
+        text-decoration: underline;
+        width: 80%;
     }
   }
 
