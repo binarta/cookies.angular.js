@@ -195,6 +195,10 @@ describe('cookies', function() {
             sut.resetCookiesStorageValue();
             expect(sut.getCookieStorageValue()).toBe(undefined);
         });
+
         
+        it('Should return the value string', function () {
+            expect(sut.getCookiesAcceptedValueString()).toBe('cookiesAccepted');
+        });
     });
 });

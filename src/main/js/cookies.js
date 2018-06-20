@@ -67,20 +67,24 @@
 
     function CookiesStorageService(binarta, localStorage) {
 
+        this.getCookiesAcceptedValueString = function() {
+            return 'cookiesAccepted';
+        }
+
         this.acceptCookies = function () {
-            localStorage.cookiesAccepted = true;
+            localStorage[this.getCookiesAcceptedValueString()] = true;
         };
 
         this.rejectCookies = function () {
-            localStorage.cookiesAccepted = false;
+            localStorage[this.getCookiesAcceptedValueString()] = false;
         };
 
         this.getCookieStorageValue = function () {
-            return localStorage.cookiesAccepted;
+            return localStorage[this.getCookiesAcceptedValueString()];
         };
 
         this.resetCookiesStorageValue = function () {
-            localStorage.cookiesAccepted = undefined;
+            localStorage[this.getCookiesAcceptedValueString()] = undefined;
         };
     }
 })();
