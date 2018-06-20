@@ -59,10 +59,18 @@ describe('cookies', function() {
                     expect(spy.showCookieNotice).toHaveBeenCalled();
                 });
 
-                it('on close', function () {
-                    sut.close();
+                it('on close - confirmed cookies', function () {
+                    sut.close(true);
                     expect(spy.close).toHaveBeenCalled();
                     expect(storage.cookiesDialogSeen).toBeTruthy();
+                    expect(storage.cookiesAccepted).toBeTruthy();
+                });
+
+                it('on close - rejected cookies', function () {
+                    sut.close(false);
+                    expect(spy.close).toHaveBeenCalled();
+                    expect(storage.cookiesDialogSeen).toBeTruthy();
+                    expect(storage.cookiesAccepted).toBeFalsy();
                 });
 
                 describe('on route changes', function () {
@@ -82,23 +90,8 @@ describe('cookies', function() {
                         $rootScope.$broadcast('$routeChangeSuccess');
                     });
 
-                    it('cookie notice is closed', function () {
-                        expect(spy.close).toHaveBeenCalled();
-                    });
-
-                    it('remembered', function () {
-                        expect(storage.cookiesDialogSeen).toBeTruthy();
-                    });
-
-                    describe('on subsequent route changes', function () {
-                        beforeEach(function () {
-                            $rootScope.$broadcast('$routeChangeSuccess');
-                            $rootScope.$digest();
-                        });
-
-                        it('close cookie notice is not called again', function () {
-                            expect(spy.close.calls.count()).toEqual(1);
-                        });
+                    it('cookie notice is not closed', function () {
+                        expect(spy.close).not.toHaveBeenCalled();
                     });
                 });
             });
@@ -164,5 +157,44 @@ describe('cookies', function() {
             $ctrl.close();
             expect(cookieNoticeDialogMock.close).toHaveBeenCalled();
         });
+    });
+
+    describe('cookiesStorage -', function() {
+
+        beforeEach(inject(function (cookiesStorage) {
+            sut = cookiesStorage;
+            spy = jasmine.createSpyObj('spy', ['acceptCookies', 'rejectCookies', 'getCookieStorageValue']);
+        }));
+
+        it('Should get the cookiestoragevalue', function() {
+            var result = sut.getCookieStorageValue();
+            expect(result).toBeUndefined();
+
+            sut.acceptCookies();
+            result = sut.getCookieStorageValue();
+            expect(result).toBeTruthy();
+
+            sut.rejectCookies();
+            result = sut.getCookieStorageValue();
+            expect(result).toBeFalsy();
+        });
+        
+        it('Should set the cookiestoragevalue to true on accept', function() {
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+            sut.acceptCookies();
+            expect(sut.getCookieStorageValue()).toBe(true);
+        });
+
+        it('Should set the cookiestoragevalue to false on reject', function() {
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+            sut.rejectCookies();
+            expect(sut.getCookieStorageValue()).toBe(false);
+        });
+
+        it('Should reset the cookieStoragevalue', function () {
+            sut.resetCookiesStorageValue();
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+        });
+        
     });
 });
