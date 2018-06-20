@@ -1,10 +1,10 @@
 (function () {
-    angular.module('cookies', ['binarta-checkpointjs-angular1', 'web.storage'])
-        .factory('cookieNoticeDialog', ['$rootScope', '$timeout', 'localStorage', 'binarta', 'cookiesStorage', CookieNoticeDialogFactory])
-        .service('cookiesStorage', ['binarta', 'localStorage', CookiesStorageService])
+    angular.module('cookies', ['binarta-checkpointjs-angular1', 'web.storage', 'notifications'])
+        .factory('cookieNoticeDialog', ['localStorage', 'binarta', 'cookiesStorage', 'topicMessageDispatcher', CookieNoticeDialogFactory])
+        .service('cookiesStorage', ['localStorage', CookiesStorageService])
         .component('cookiePermissionGranted', new CookiePermissionGrantedComponent());
 
-    function CookieNoticeDialogFactory($rootScope, $timeout, localStorage, binarta, cookiesStorage) {
+    function CookieNoticeDialogFactory(localStorage, binarta, cookiesStorage, topicMessageDispatcher) {
         function isStorageDisabled() {
             return angular.isUndefined(localStorage.storageAvailable);
         }
@@ -21,8 +21,18 @@
             return navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1;
         }
 
+        function areCookiesAccepted() {
+            return cookiesStorage.getCookieStorageValue();
+        }
+
+        function dispatchCookiesAccepted() {
+            topicMessageDispatcher.fire('cookies.accepted');
+        }
+
         return new function () {
             this.show = function (args) {
+                if (areCookiesAccepted()) dispatchCookiesAccepted();
+
                 if (isPhantomJsUserAgent()) args.close();
                 else if (isStorageDisabled()) args.showEnableCookiesNotice();
                 else if (isCookieDialogRequired()) args.showCookieNotice();
@@ -65,9 +75,9 @@
         }];
     }
 
-    function CookiesStorageService(binarta, localStorage) {
+    function CookiesStorageService(localStorage) {
 
-        this.getCookiesAcceptedValueString = function() {
+        this.getCookiesAcceptedValueString = function () {
             return 'cookiesAccepted';
         }
 

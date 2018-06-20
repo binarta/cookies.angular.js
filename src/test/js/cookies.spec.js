@@ -1,26 +1,44 @@
 describe('cookies', function() {
-    var $rootScope, $timeout, scope, storage, binarta;
+    var $rootScope, $timeout, scope, storage, binarta, topicMessageDispatcher;
 
     beforeEach(module('cookies'));
 
-    beforeEach(inject(function(_$rootScope_, _$location_, _$timeout_, _localStorage_, _binarta_) {
+    beforeEach(inject(function(_$rootScope_, _$location_, _$timeout_, _localStorage_, _binarta_, _topicMessageDispatcher_) {
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
         $timeout = _$timeout_;
         storage = _localStorage_;
         binarta = _binarta_;
+        topicMessageDispatcher = _topicMessageDispatcher_;
     }));
 
     describe('cookieNoticeDialog factory', function () {
-        var sut, spy;
+        var sut, spy, acceptedCookiesSpy, cookiesStorage;
 
-        beforeEach(inject(function (cookieNoticeDialog) {
+        beforeEach(inject(function (cookieNoticeDialog, _cookiesStorage_) {
+            cookiesStorage = _cookiesStorage_;
             sut = cookieNoticeDialog;
             spy = jasmine.createSpyObj('spy', ['showEnableCookiesNotice', 'showCookieNotice', 'close']);
             window.navigator = {
                 userAgent: 'user agent'
             };
         }));
+        
+        it('Should fire an event if cookies are accepted', function () {
+            cookiesStorage.acceptCookies();
+            sut.show(spy);
+            expect(topicMessageDispatcher.fire).toHaveBeenCalled();
+        });
+        
+        it('Should NOT fire an event if cookies are rejected or cookiedialog has never been seen', function () {
+            sut.show(spy);
+            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
+
+            cookiesStorage.rejectCookies();
+            sut.show(spy);
+            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
+        });
+        
 
         describe('when useragent is phantomJS (which is used by prerender)', function () {
             beforeEach(function () {
@@ -33,6 +51,7 @@ describe('cookies', function() {
             it('do not show cookie notice', function () {
                 expect(spy.close).toHaveBeenCalledWith();
             });
+            
         });
 
         describe('when web storage is disabled', function () {
