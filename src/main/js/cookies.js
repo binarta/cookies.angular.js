@@ -29,6 +29,11 @@
             topicMessageDispatcher.fire('cookies.accepted');
         }
 
+        function acceptCookies() {
+            cookiesStorage.acceptCookies();
+            dispatchCookiesAccepted();
+        }
+
         return new function () {
             this.show = function (args) {
                 if (areCookiesAccepted()) dispatchCookiesAccepted();
@@ -41,7 +46,7 @@
                 this.close = function (isAccepted) {
                     args.close();
                     remember();
-                    isAccepted ? cookiesStorage.acceptCookies() : cookiesStorage.rejectCookies();
+                    isAccepted ? acceptCookies() : cookiesStorage.rejectCookies();
                 };
 
                 binarta.checkpoint.profile.eventRegistry.observe({

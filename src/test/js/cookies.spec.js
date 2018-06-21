@@ -25,8 +25,8 @@ describe('cookies', function() {
         }));
         
         it('Should fire an event if cookies are accepted', function () {
-            cookiesStorage.acceptCookies();
             sut.show(spy);
+            sut.close(true);
             expect(topicMessageDispatcher.fire).toHaveBeenCalled();
         });
         
@@ -34,8 +34,8 @@ describe('cookies', function() {
             sut.show(spy);
             expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
 
-            cookiesStorage.rejectCookies();
             sut.show(spy);
+            sut.close(false);
             expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
         });
         
