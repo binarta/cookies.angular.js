@@ -17,39 +17,36 @@ cookie-permission-granted {
     animation-fill-mode: forwards;
     backface-visibility: hidden;
   }
-
   .binarta-cookie-notice-message {
+    font-size: 15px;
     padding-right: 20px;
-
     p {
       text-align: center;
       margin: 0;
     }
     button {
-        margin: 20px auto;
-        background-color: darken(@brand-primary, 12%);
+      display: block;
+      margin: 20px auto;
+      background-color: darken(@brand-primary, 12%);
     }
     a.cookies-reject-link {
-        color: white;
-        display: block;
-        margin: auto;
-        text-align: center;
-        text-decoration: underline;
-        width: 80%;
+      color: white;
+      display: block;
+      margin: auto;
+      text-align: center;
+      text-decoration: underline;
+      width: 80%;
     }
   }
-
   .binarta-cookie-notice-close {
     position: absolute;
     top: @padding-small-vertical/2;
     right: @padding-small-horizontal/2;
     font-size: @font-size-base;
   }
-
   .binarta-cookie-notice-close-label {
     display: none;
   }
-
   @keyframes cookieNoticeAppear {
     from {
       opacity: 0;
