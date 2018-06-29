@@ -27,7 +27,7 @@ describe('cookies', function() {
         it('Should fire an event if cookies are accepted', function () {
             sut.show(spy);
             sut.close(true);
-            expect(topicMessageDispatcher.fire).toHaveBeenCalled();
+            expect(topicMessageDispatcher.fire).toHaveBeenCalledWith('cookies.accepted');
         });
         
         it('Should NOT fire an event if cookies are rejected or cookiedialog has never been seen', function () {
