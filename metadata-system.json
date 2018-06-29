@@ -2,25 +2,25 @@
   "msgs":{
     "nl":{
       "configure.cookies.notice.message": "Gelieve je browser te configureren zodat cookies van derden worden geaccepteerd. Je kan meer lezen over ons cookie-beleid in onze voorwaarden.",
-      "cookie.notice.message": "Wij respecteren jouw privacy. Er wordt enkel gebruik gemaakt van Google analytics paginaweergaven en acties om jou de beste ervaring te geven op deze website.",
+      "cookie.notice.message": "Onze partners verzamelen statistische gegevens van het gebruik van de website om jou de meest optimale surfervaring te geven. Wij respecteren jouw privacy.",
       "cookie.notice.accept": "Accepteer Cookies",
       "cookie.notice.reject": "Ga verder zonder cookies"
     },
     "en":{
       "configure.cookies.notice.message": "Please configure your browser to enable third-party cookies, you can read more about our cookie policy in our conditions.",
-      "cookie.notice.message": "We respect your privacy. We only use Google analytics to optimize our site for the best user experience to track pageviews and actions.",
+      "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy. ",
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies"
     },
     "fr":{
       "configure.cookies.notice.message": "Veuillez configurer votre navigateur de telle façon qu'il accepte les cookies provenant de tiers. Voir les conditions pour plus d'informations sur l'utilisation des cookies.",
-      "cookie.notice.message": "We respect your privacy. We only use Google analytics to optimize our site for the best user experience to track pageviews and actions.",
+      "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy. ",
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies"
     },
     "de":{
       "configure.cookies.notice.message": "Konfigurieren Sie Ihren Browser bitte so, dass Cookies von Dritten akzeptiert werden. Nähere Informationen über unseren Umgang mit Cookie finden Sie in unseren Allgemeinen Geschäftsbedingungen.",
-      "cookie.notice.message": "We respect your privacy. We only use Google analytics to optimize our site for the best user experience to track pageviews and actions.",
+      "cookie.notice.message": "Our partners gather data about the use of our website to provide the best user experience. We respect your privacy.",
       "cookie.notice.accept": "Accept Cookies",
       "cookie.notice.reject": "Use this site without cookies"
     }
