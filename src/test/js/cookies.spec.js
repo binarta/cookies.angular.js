@@ -26,19 +26,21 @@ describe('cookies', function() {
         
         it('Should fire an event if cookies are accepted', function () {
             sut.show(spy);
-            sut.close(true);
+            sut.close('true');
             expect(topicMessageDispatcher.fire).toHaveBeenCalledWith('cookies.accepted');
         });
         
-        it('Should NOT fire an event if cookies are rejected or cookiedialog has never been seen', function () {
+        it('Should NOT fire an event if cookies are rejected', function () {
             sut.show(spy);
-            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
-
-            sut.show(spy);
-            sut.close(false);
+            sut.close('false');
             expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
         });
+
         
+        it('Should NOT fire an event if cookiedialog has never been seen', function () {
+            sut.show(spy);
+            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
+        });
 
         describe('when useragent is phantomJS (which is used by prerender)', function () {
             beforeEach(function () {
@@ -79,17 +81,17 @@ describe('cookies', function() {
                 });
 
                 it('on close - confirmed cookies', function () {
-                    sut.close(true);
+                    sut.close('true');
                     expect(spy.close).toHaveBeenCalled();
                     expect(storage.cookiesDialogSeen).toBeTruthy();
                     expect(storage.cookiesAccepted).toBeTruthy();
                 });
 
                 it('on close - rejected cookies', function () {
-                    sut.close(false);
+                    sut.close('false');
                     expect(spy.close).toHaveBeenCalled();
-                    expect(storage.cookiesDialogSeen).toBeTruthy();
-                    expect(storage.cookiesAccepted).toBeFalsy();
+                    expect(storage.cookiesDialogSeen).toBe('true');
+                    expect(storage.cookiesAccepted).toBe('false');
                 });
 
                 describe('on route changes', function () {
@@ -191,23 +193,23 @@ describe('cookies', function() {
 
             sut.acceptCookies();
             result = sut.getCookieStorageValue();
-            expect(result).toBeTruthy();
+            expect(result).toBe('true');
 
             sut.rejectCookies();
             result = sut.getCookieStorageValue();
-            expect(result).toBeFalsy();
+            expect(result).toBe('false');
         });
         
         it('Should set the cookiestoragevalue to true on accept', function() {
             expect(sut.getCookieStorageValue()).toBe(undefined);
             sut.acceptCookies();
-            expect(sut.getCookieStorageValue()).toBe(true);
+            expect(sut.getCookieStorageValue()).toBe('true');
         });
 
         it('Should set the cookiestoragevalue to false on reject', function() {
             expect(sut.getCookieStorageValue()).toBe(undefined);
             sut.rejectCookies();
-            expect(sut.getCookieStorageValue()).toBe(false);
+            expect(sut.getCookieStorageValue()).toBe('false');
         });
 
         it('Should reset the cookieStoragevalue', function () {
@@ -215,9 +217,8 @@ describe('cookies', function() {
             expect(sut.getCookieStorageValue()).toBe(undefined);
         });
 
-        
         it('Should return the value string', function () {
-            expect(sut.getCookiesAcceptedValueString()).toBe('cookiesAccepted');
+            expect(sut.cookiesAccepted).toBe('cookiesAccepted');
         });
     });
 });

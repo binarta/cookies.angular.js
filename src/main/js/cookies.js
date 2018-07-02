@@ -10,11 +10,11 @@
         }
 
         function isCookieDialogRequired() {
-            return !localStorage.cookiesDialogSeen;
+            return localStorage.cookiesDialogSeen !== 'true';
         }
 
         function remember() {
-            localStorage.cookiesDialogSeen = true;
+            localStorage.cookiesDialogSeen = 'true';
         }
 
         function isPhantomJsUserAgent() {
@@ -46,7 +46,7 @@
                 this.close = function (isAccepted) {
                     args.close();
                     remember();
-                    isAccepted ? acceptCookies() : cookiesStorage.rejectCookies();
+                    isAccepted === 'true' ? acceptCookies() : cookiesStorage.rejectCookies();
                 };
 
                 binarta.checkpoint.profile.eventRegistry.observe({
@@ -82,24 +82,22 @@
 
     function CookiesStorageService(localStorage) {
 
-        this.getCookiesAcceptedValueString = function () {
-            return 'cookiesAccepted';
-        }
+        this.cookiesAccepted = 'cookiesAccepted';
 
         this.acceptCookies = function () {
-            localStorage[this.getCookiesAcceptedValueString()] = true;
+            localStorage[this.cookiesAccepted] = 'true';
         };
 
         this.rejectCookies = function () {
-            localStorage[this.getCookiesAcceptedValueString()] = false;
+            localStorage[this.cookiesAccepted] = 'false';
         };
 
         this.getCookieStorageValue = function () {
-            return localStorage[this.getCookiesAcceptedValueString()];
+            return localStorage[this.cookiesAccepted];
         };
 
         this.resetCookiesStorageValue = function () {
-            localStorage[this.getCookiesAcceptedValueString()] = undefined;
+            localStorage[this.cookiesAccepted] = undefined;
         };
     }
 })();
