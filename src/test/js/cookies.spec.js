@@ -1,26 +1,46 @@
 describe('cookies', function() {
-    var $rootScope, $timeout, scope, storage, binarta;
+    var $rootScope, $timeout, scope, storage, binarta, topicMessageDispatcher;
 
     beforeEach(module('cookies'));
 
-    beforeEach(inject(function(_$rootScope_, _$location_, _$timeout_, _localStorage_, _binarta_) {
+    beforeEach(inject(function(_$rootScope_, _$location_, _$timeout_, _localStorage_, _binarta_, _topicMessageDispatcher_) {
         $rootScope = _$rootScope_;
         scope = $rootScope.$new();
         $timeout = _$timeout_;
         storage = _localStorage_;
         binarta = _binarta_;
+        topicMessageDispatcher = _topicMessageDispatcher_;
     }));
 
     describe('cookieNoticeDialog factory', function () {
-        var sut, spy;
+        var sut, spy, acceptedCookiesSpy, cookiesStorage;
 
-        beforeEach(inject(function (cookieNoticeDialog) {
+        beforeEach(inject(function (cookieNoticeDialog, _cookiesStorage_) {
+            cookiesStorage = _cookiesStorage_;
             sut = cookieNoticeDialog;
             spy = jasmine.createSpyObj('spy', ['showEnableCookiesNotice', 'showCookieNotice', 'close']);
             window.navigator = {
                 userAgent: 'user agent'
             };
         }));
+        
+        it('Should fire an event if cookies are accepted', function () {
+            sut.show(spy);
+            sut.close('true');
+            expect(topicMessageDispatcher.fire).toHaveBeenCalledWith('cookies.accepted');
+        });
+        
+        it('Should NOT fire an event if cookies are rejected', function () {
+            sut.show(spy);
+            sut.close('false');
+            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
+        });
+
+        
+        it('Should NOT fire an event if cookiedialog has never been seen', function () {
+            sut.show(spy);
+            expect(topicMessageDispatcher.fire).not.toHaveBeenCalled();
+        });
 
         describe('when useragent is phantomJS (which is used by prerender)', function () {
             beforeEach(function () {
@@ -33,6 +53,7 @@ describe('cookies', function() {
             it('do not show cookie notice', function () {
                 expect(spy.close).toHaveBeenCalledWith();
             });
+            
         });
 
         describe('when web storage is disabled', function () {
@@ -59,10 +80,18 @@ describe('cookies', function() {
                     expect(spy.showCookieNotice).toHaveBeenCalled();
                 });
 
-                it('on close', function () {
-                    sut.close();
+                it('on close - confirmed cookies', function () {
+                    sut.close('true');
                     expect(spy.close).toHaveBeenCalled();
                     expect(storage.cookiesDialogSeen).toBeTruthy();
+                    expect(storage.cookiesAccepted).toBeTruthy();
+                });
+
+                it('on close - rejected cookies', function () {
+                    sut.close('false');
+                    expect(spy.close).toHaveBeenCalled();
+                    expect(storage.cookiesDialogSeen).toBe('true');
+                    expect(storage.cookiesAccepted).toBe('false');
                 });
 
                 describe('on route changes', function () {
@@ -82,23 +111,8 @@ describe('cookies', function() {
                         $rootScope.$broadcast('$routeChangeSuccess');
                     });
 
-                    it('cookie notice is closed', function () {
-                        expect(spy.close).toHaveBeenCalled();
-                    });
-
-                    it('remembered', function () {
-                        expect(storage.cookiesDialogSeen).toBeTruthy();
-                    });
-
-                    describe('on subsequent route changes', function () {
-                        beforeEach(function () {
-                            $rootScope.$broadcast('$routeChangeSuccess');
-                            $rootScope.$digest();
-                        });
-
-                        it('close cookie notice is not called again', function () {
-                            expect(spy.close.calls.count()).toEqual(1);
-                        });
+                    it('cookie notice is not closed', function () {
+                        expect(spy.close).not.toHaveBeenCalled();
                     });
                 });
             });
@@ -163,6 +177,48 @@ describe('cookies', function() {
         it('on calling close manually', function () {
             $ctrl.close();
             expect(cookieNoticeDialogMock.close).toHaveBeenCalled();
+        });
+    });
+
+    describe('cookiesStorage -', function() {
+
+        beforeEach(inject(function (cookiesStorage) {
+            sut = cookiesStorage;
+            spy = jasmine.createSpyObj('spy', ['acceptCookies', 'rejectCookies', 'getCookieStorageValue']);
+        }));
+
+        it('Should get the cookiestoragevalue', function() {
+            var result = sut.getCookieStorageValue();
+            expect(result).toBeUndefined();
+
+            sut.acceptCookies();
+            result = sut.getCookieStorageValue();
+            expect(result).toBe('true');
+
+            sut.rejectCookies();
+            result = sut.getCookieStorageValue();
+            expect(result).toBe('false');
+        });
+        
+        it('Should set the cookiestoragevalue to true on accept', function() {
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+            sut.acceptCookies();
+            expect(sut.getCookieStorageValue()).toBe('true');
+        });
+
+        it('Should set the cookiestoragevalue to false on reject', function() {
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+            sut.rejectCookies();
+            expect(sut.getCookieStorageValue()).toBe('false');
+        });
+
+        it('Should reset the cookieStoragevalue', function () {
+            sut.resetCookiesStorageValue();
+            expect(sut.getCookieStorageValue()).toBe(undefined);
+        });
+
+        it('Should return the value string', function () {
+            expect(sut.cookiesAccepted).toBe('cookiesAccepted');
         });
     });
 });

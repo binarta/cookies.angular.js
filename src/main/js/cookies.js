@@ -1,48 +1,53 @@
 (function () {
-    angular.module('cookies', ['binarta-checkpointjs-angular1', 'web.storage'])
-        .factory('cookieNoticeDialog', ['$rootScope', '$timeout', 'localStorage', 'binarta', CookieNoticeDialogFactory])
+    angular.module('cookies', ['binarta-checkpointjs-angular1', 'web.storage', 'notifications'])
+        .factory('cookieNoticeDialog', ['localStorage', 'binarta', 'cookiesStorage', 'topicMessageDispatcher', CookieNoticeDialogFactory])
+        .service('cookiesStorage', ['localStorage', CookiesStorageService])
         .component('cookiePermissionGranted', new CookiePermissionGrantedComponent());
 
-    function CookieNoticeDialogFactory($rootScope, $timeout, localStorage, binarta) {
+    function CookieNoticeDialogFactory(localStorage, binarta, cookiesStorage, topicMessageDispatcher) {
         function isStorageDisabled() {
             return angular.isUndefined(localStorage.storageAvailable);
         }
 
         function isCookieDialogRequired() {
-            return !localStorage.cookiesDialogSeen;
-        }
-
-        function showCookieNoticeAndRemember(args) {
-            $timeout(afterTimeout, 5000);
-            args.showCookieNotice();
-            remember();
-
-            function afterTimeout() {
-                var deregister = $rootScope.$on('$routeChangeSuccess', onNextRouteChange);
-
-                function onNextRouteChange() {
-                    args.close();
-                    deregister();
-                }
-            }
+            return localStorage.cookiesDialogSeen !== 'true';
         }
 
         function remember() {
-            localStorage.cookiesDialogSeen = true;
+            localStorage.cookiesDialogSeen = 'true';
         }
 
         function isPhantomJsUserAgent() {
             return navigator.userAgent.toLowerCase().indexOf('phantomjs') != -1;
         }
 
-        return new function() {
-            this.show = function(args) {
+        function areCookiesAccepted() {
+            return cookiesStorage.getCookieStorageValue();
+        }
+
+        function dispatchCookiesAccepted() {
+            topicMessageDispatcher.fire('cookies.accepted');
+        }
+
+        function acceptCookies() {
+            cookiesStorage.acceptCookies();
+            dispatchCookiesAccepted();
+        }
+
+        return new function () {
+            this.show = function (args) {
+                if (areCookiesAccepted()) dispatchCookiesAccepted();
+
                 if (isPhantomJsUserAgent()) args.close();
                 else if (isStorageDisabled()) args.showEnableCookiesNotice();
-                else if (isCookieDialogRequired()) showCookieNoticeAndRemember(args);
+                else if (isCookieDialogRequired()) args.showCookieNotice();
                 else args.close();
 
-                this.close = args.close;
+                this.close = function (isAccepted) {
+                    args.close();
+                    remember();
+                    isAccepted === 'true' ? acceptCookies() : cookiesStorage.rejectCookies();
+                };
 
                 binarta.checkpoint.profile.eventRegistry.observe({
                     signedin: args.close
@@ -57,15 +62,15 @@
             var $ctrl = this;
 
             cookieNoticeDialog.show({
-                showEnableCookiesNotice:function() {
+                showEnableCookiesNotice: function () {
                     $ctrl.cookie = false;
                     $ctrl.configureCookies = true;
                 },
-                showCookieNotice:function() {
+                showCookieNotice: function () {
                     $ctrl.configureCookies = false;
                     $ctrl.cookie = true;
                 },
-                close:function() {
+                close: function () {
                     $ctrl.cookie = false;
                     $ctrl.configureCookies = false;
                 }
@@ -73,5 +78,26 @@
 
             $ctrl.close = cookieNoticeDialog.close;
         }];
+    }
+
+    function CookiesStorageService(localStorage) {
+
+        this.cookiesAccepted = 'cookiesAccepted';
+
+        this.acceptCookies = function () {
+            localStorage[this.cookiesAccepted] = 'true';
+        };
+
+        this.rejectCookies = function () {
+            localStorage[this.cookiesAccepted] = 'false';
+        };
+
+        this.getCookieStorageValue = function () {
+            return localStorage[this.cookiesAccepted];
+        };
+
+        this.resetCookiesStorageValue = function () {
+            localStorage[this.cookiesAccepted] = undefined;
+        };
     }
 })();

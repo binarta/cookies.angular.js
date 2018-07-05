@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "postinstall": "bower install",
+    "test": "karma start karma10.conf.js"
+  },
   "devDependencies": {
     "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
