@@ -1,6 +1,6 @@
-# binarta.cookies.angular.js
+# (ORPHANED) binarta.cookies.angular.js
 
-[AngularJS](http://angularjs.org/) module for cookies functionality based on the [Binarta](http://binarta.com/) platform.
+We no longer use or maintain this module as there is now a replacement in binartajs-angular1.
 
 ## Copyright and license
 
